@@ -27,9 +27,7 @@
 #define GMP_NO_MODULES true
 
 #import "PushPlugin.h"
-@import FirebaseInstanceID;
-@import FirebaseMessaging;
-@import FirebaseAnalytics;
+#import "CloudMessaging.h"
 
 @implementation PushPlugin : CDVPlugin
 
@@ -43,62 +41,78 @@
 @synthesize clearBadge;
 @synthesize handlerObj;
 
-@synthesize usesFCM;
-@synthesize fcmSandbox;
-@synthesize fcmSenderId;
-@synthesize fcmRegistrationOptions;
-@synthesize fcmRegistrationToken;
-@synthesize fcmTopics;
+@synthesize usesGCM;
+@synthesize gcmSandbox;
+@synthesize gcmSenderId;
+@synthesize gcmRegistrationOptions;
+@synthesize gcmRegistrationHandler;
+@synthesize gcmRegistrationToken;
+@synthesize gcmTopics;
 
--(void)initRegistration;
+-(void)initGCMRegistrationHandler;
 {
-    NSString * registrationToken = [[FIRInstanceID instanceID] token];
+    __weak __block PushPlugin *weakSelf = self;
+    gcmRegistrationHandler = ^(NSString *registrationToken, NSError *error){
+        if (registrationToken != nil) {
+            NSLog(@"GCM Registration Token: %@", registrationToken);
+            [weakSelf setGcmRegistrationToken: registrationToken];
 
-    if (registrationToken != nil) {
-        NSLog(@"FCM Registration Token: %@", registrationToken);
-        [self setFcmRegistrationToken: registrationToken];
-
-        id topics = [self fcmTopics];
-        if (topics != nil) {
-            for (NSString *topic in topics) {
-                NSLog(@"subscribe to topic: %@", topic);
-                id pubSub = [FIRMessaging messaging];
-                [pubSub subscribeToTopic:topic];
+            id topics = [weakSelf gcmTopics];
+            if (topics != nil) {
+                for (NSString *topic in topics) {
+                    NSLog(@"subscribe from topic: %@", topic);
+                    id pubSub = [GCMPubSub sharedInstance];
+                    [pubSub subscribeWithToken: [weakSelf gcmRegistrationToken]
+                        topic:[NSString stringWithFormat:@"/topics/%@", topic]
+                        options:nil
+                        handler:^void(NSError *error) {
+                            if (error) {
+                                if (error.code == 3001) {
+                                    NSLog(@"Already subscribed to %@", topic);
+                                } else {
+                                    NSLog(@"Failed to subscribe to topic %@: %@", topic, error);
+                                }
+                            }
+                            else {
+                                NSLog(@"Successfully subscribe to topic %@", topic);
+                            }
+                    }];
+                }
             }
+
+            [weakSelf registerWithToken:registrationToken];
+        } else {
+            NSLog(@"Registration to GCM failed with error: %@", error.localizedDescription);
+            [weakSelf failWithMessage:self.callbackId withMsg:@"" withError:error];
         }
-
-        [self registerWithToken:registrationToken];
-    } else {
-        NSLog(@"FCM token is null");
-    }
-
+    };
 }
 
-//  FCM refresh token
+//  GCM refresh token
 //  Unclear how this is testable under normal circumstances
 - (void)onTokenRefresh {
 #if !TARGET_IPHONE_SIMULATOR
     // A rotation of the registration tokens is happening, so the app needs to request a new token.
-    NSLog(@"The FCM registration token needs to be changed.");
-    [[FIRInstanceID instanceID] token];
-    [self initRegistration];
+    NSLog(@"The GCM registration token needs to be changed.");
+    [[GGLInstanceID sharedInstance] tokenWithAuthorizedEntity:[self gcmSenderId]
+                                                        scope:kGGLInstanceIDScopeGCM
+                                                      options:[self gcmRegistrationOptions]
+                                                      handler:[self gcmRegistrationHandler]];
 #endif
 }
 
-// contains error info
-- (void)sendDataMessageFailure:(NSNotification *)notification {
-    NSLog(@"sendDataMessageFailure");
-}
-- (void)sendDataMessageSuccess:(NSNotification *)notification {
-    NSLog(@"sendDataMessageSuccess");
-}
-
-- (void)didSendDataMessageWithID:messageID {
-    NSLog(@"didSendDataMessageWithID");
-}
-
-- (void)willSendDataMessageWithID:messageID error:error {
+- (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
     NSLog(@"willSendDataMessageWithID");
+    if (error) {
+        // Failed to send the message.
+    } else {
+        // Will send message, you can save the messageID to track the message
+    }
+}
+
+- (void)didSendDataMessageWithID:(NSString *)messageID {
+    NSLog(@"willSendDataMessageWithID");
+    // Did successfully send message identified by messageID
 }
 
 - (void)didDeleteMessagesOnServer {
@@ -113,10 +127,20 @@
     NSArray* topics = [command argumentAtIndex:0];
 
     if (topics != nil) {
-        id pubSub = [FIRMessaging messaging];
+        id pubSub = [GCMPubSub sharedInstance];
         for (NSString *topic in topics) {
             NSLog(@"unsubscribe from topic: %@", topic);
-            [pubSub unsubscribeFromTopic:topic];
+            [pubSub unsubscribeWithToken: [self gcmRegistrationToken]
+                topic:[NSString stringWithFormat:@"/topics/%@", topic]
+                options:nil
+                handler:^void(NSError *error) {
+                    if (error) {
+                        NSLog(@"Failed to unsubscribe from topic %@: %@", topic, error);
+                    }
+                    else {
+                        NSLog(@"Successfully unsubscribe from topic %@", topic);
+                    }
+            }];
         }
     } else {
         [[UIApplication sharedApplication] unregisterForRemoteNotifications];
@@ -130,10 +154,25 @@
 
     if (topic != nil) {
         NSLog(@"subscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub subscribeToTopic:topic];
-        NSLog(@"Successfully subscribe to topic %@", topic);
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
+        id pubSub = [GCMPubSub sharedInstance];
+        [pubSub subscribeWithToken: [self gcmRegistrationToken]
+            topic:[NSString stringWithFormat:@"/topics/%@", topic]
+            options:nil
+            handler:^void(NSError *error) {
+                if (error) {
+                    if (error.code == 3001) {
+                        NSLog(@"Already subscribed to %@", topic);
+                        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Already subscribed to %@", topic]];
+                    } else {
+                        NSLog(@"Failed to subscribe to topic %@: %@", topic, error);
+                        [self failWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Failed to subscribe to topic %@", topic] withError:error];
+                    }
+                }
+                else {
+                    NSLog(@"Successfully subscribe to topic %@", topic);
+                    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully subscribe to topic %@", topic]];
+                }
+        }];
     } else {
         NSLog(@"There is no topic to subscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to subscribe"];
@@ -146,10 +185,19 @@
 
     if (topic != nil) {
         NSLog(@"unsubscribe from topic: %@", topic);
-        id pubSub = [FIRMessaging messaging];
-        [pubSub unsubscribeFromTopic:topic];
-        NSLog(@"Successfully unsubscribe from topic %@", topic);
-        [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe from topic %@", topic]];
+        id pubSub = [GCMPubSub sharedInstance];
+        [pubSub unsubscribeWithToken: [self gcmRegistrationToken]
+            topic:[NSString stringWithFormat:@"/topics/%@", topic]
+            options:nil
+            handler:^void(NSError *error) {
+                if (error) {
+                    NSLog(@"Failed to unsubscribe to topic %@: %@", topic, error);
+                    [self failWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Failed to unsubscribe to topic %@", topic] withError:error];
+                } else {
+                    NSLog(@"Successfully unsubscribe to topic %@", topic);
+                    [self successWithMessage:command.callbackId withMsg:[NSString stringWithFormat:@"Successfully unsubscribe to topic %@", topic]];
+                }
+        }];
     } else {
         NSLog(@"There is no topic to unsubscribe");
         [self successWithMessage:command.callbackId withMsg:@"There is no topic to unsubscribe"];
@@ -158,22 +206,6 @@
 
 - (void)init:(CDVInvokedUrlCommand*)command;
 {
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self selector:@selector(onTokenRefresh)
-     name:kFIRInstanceIDTokenRefreshNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self selector:@selector(sendDataMessageFailure:)
-     name:FIRMessagingSendErrorNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self selector:@selector(sendDataMessageSuccess:)
-     name:FIRMessagingSendSuccessNotification object:nil];
-
-    [[NSNotificationCenter defaultCenter]
-     addObserver:self selector:@selector(didDeleteMessagesOnServer)
-     name:FIRMessagingMessagesDeletedNotification object:nil];
-
     [self.commandDelegate runInBackground:^ {
 
         NSLog(@"Push Plugin register called");
@@ -182,10 +214,13 @@
         NSMutableDictionary* options = [command.arguments objectAtIndex:0];
         NSMutableDictionary* iosOptions = [options objectForKey:@"ios"];
 
-        NSArray* topics = [iosOptions objectForKey:@"topics"];
-        [self setFcmTopics:topics];
+    NSArray* topics = [iosOptions objectForKey:@"topics"];
+    [self setGcmTopics:topics];
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         UIUserNotificationType UserNotificationTypes = UIUserNotificationTypeNone;
+#endif
+        UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeNone;
 
         id badgeArg = [iosOptions objectForKey:@"badge"];
         id soundArg = [iosOptions objectForKey:@"sound"];
@@ -194,20 +229,32 @@
 
         if (([badgeArg isKindOfClass:[NSString class]] && [badgeArg isEqualToString:@"true"]) || [badgeArg boolValue])
         {
+            notificationTypes |= UIRemoteNotificationTypeBadge;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
             UserNotificationTypes |= UIUserNotificationTypeBadge;
+#endif
         }
 
         if (([soundArg isKindOfClass:[NSString class]] && [soundArg isEqualToString:@"true"]) || [soundArg boolValue])
         {
+            notificationTypes |= UIRemoteNotificationTypeSound;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
             UserNotificationTypes |= UIUserNotificationTypeSound;
+#endif
         }
 
         if (([alertArg isKindOfClass:[NSString class]] && [alertArg isEqualToString:@"true"]) || [alertArg boolValue])
         {
+            notificationTypes |= UIRemoteNotificationTypeAlert;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
             UserNotificationTypes |= UIUserNotificationTypeAlert;
+#endif
         }
 
+        notificationTypes |= UIRemoteNotificationTypeNewsstandContentAvailability;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         UserNotificationTypes |= UIUserNotificationActivationModeBackground;
+#endif
 
         if (clearBadgeArg == nil || ([clearBadgeArg isKindOfClass:[NSString class]] && [clearBadgeArg isEqualToString:@"false"]) || ![clearBadgeArg boolValue]) {
             NSLog(@"PushPlugin.register: setting badge to false");
@@ -219,8 +266,12 @@
         }
         NSLog(@"PushPlugin.register: clear badge is set to %d", clearBadge);
 
+        if (notificationTypes == UIRemoteNotificationTypeNone)
+            NSLog(@"PushPlugin.register: Push notification type is set to none");
+
         isInline = NO;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         NSLog(@"PushPlugin.register: better button setup");
         // setup action buttons
         NSMutableSet *categories = [[NSMutableSet alloc] init];
@@ -277,46 +328,45 @@
             }
 
         }
+#else
+        NSLog(@"PushPlugin.register: action buttons only supported on iOS8 and above");
+#endif
 
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         if ([[UIApplication sharedApplication]respondsToSelector:@selector(registerUserNotificationSettings:)]) {
             UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UserNotificationTypes categories:categories];
             [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
             [[UIApplication sharedApplication] registerForRemoteNotifications];
+        } else {
+            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+             (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
         }
-
-        // Read GoogleService-Info.plist
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
-
-        // Load the file content and read the data into arrays
-        NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfFile:path];
-        fcmSenderId = [dict objectForKey:@"GCM_SENDER_ID"];
-        BOOL isGcmEnabled = [[dict valueForKey:@"IS_GCM_ENABLED"] boolValue];
-
-        NSLog(@"FCM Sender ID %@", fcmSenderId);
+#else
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+         (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+#endif
 
         //  GCM options
-        [self setFcmSenderId: fcmSenderId];
-        if(isGcmEnabled && [[self fcmSenderId] length] > 0) {
-            NSLog(@"Using FCM Notification");
-            [self setUsesFCM: YES];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if([FIRApp defaultApp] == nil)
-                    [FIRApp configure];
-                [self initRegistration];
-            });
+        [self setGcmSenderId: [iosOptions objectForKey:@"senderID"]];
+        NSLog(@"GCM Sender ID %@", gcmSenderId);
+        if([[self gcmSenderId] length] > 0) {
+            NSLog(@"Using GCM Notification");
+            [self setUsesGCM: YES];
+            [self initGCMRegistrationHandler];
         } else {
             NSLog(@"Using APNS Notification");
-            [self setUsesFCM:NO];
+            [self setUsesGCM:NO];
         }
-        id fcmSandboxArg = [iosOptions objectForKey:@"fcmSandbox"];
+        id gcmSandBoxArg = [iosOptions objectForKey:@"gcmSandbox"];
 
-        [self setFcmSandbox:@NO];
-        if ([self usesFCM] &&
-            (([fcmSandboxArg isKindOfClass:[NSString class]] && [fcmSandboxArg isEqualToString:@"true"]) ||
-             [fcmSandboxArg boolValue]))
+        [self setGcmSandbox:@NO];
+        if ([self usesGCM] &&
+            (([gcmSandBoxArg isKindOfClass:[NSString class]] && [gcmSandBoxArg isEqualToString:@"true"]) ||
+             [gcmSandBoxArg boolValue]))
         {
-            NSLog(@"Using FCM Sandbox");
-            [self setFcmSandbox:@YES];
+            NSLog(@"Using GCM Sandbox");
+            [self setGcmSandbox:@YES];
         }
 
         if (notificationMessage) {			// if there is a pending startup notification
@@ -371,8 +421,14 @@
     [results setValue:[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] forKey:@"appVersion"];
 
     // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
-    NSUInteger rntypes = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+    NSUInteger rntypes;
+    if (!SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+        rntypes = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+    } else {
+        rntypes = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+    }
 
     // Set the defaults to disabled unless we find otherwise...
     NSString *pushBadge = @"disabled";
@@ -383,13 +439,13 @@
     // one is actually disabled. So we are literally checking to see if rnTypes matches what is turned on, instead of by number. The "tricky" part is that the
     // single notification types will only match if they are the ONLY one enabled.  Likewise, when we are checking for a pair of notifications, it will only be
     // true if those two notifications are on.  This is why the code is written this way
-    if(rntypes & UIUserNotificationTypeBadge){
+    if(rntypes & UIRemoteNotificationTypeBadge){
         pushBadge = @"enabled";
     }
-    if(rntypes & UIUserNotificationTypeAlert) {
+    if(rntypes & UIRemoteNotificationTypeAlert) {
         pushAlert = @"enabled";
     }
-    if(rntypes & UIUserNotificationTypeSound) {
+    if(rntypes & UIRemoteNotificationTypeSound) {
         pushSound = @"enabled";
     }
 
@@ -403,7 +459,24 @@
     [results setValue:dev.model forKey:@"deviceModel"];
     [results setValue:dev.systemVersion forKey:@"deviceSystemVersion"];
 
-    if(![self usesFCM]) {
+    if([self usesGCM]) {
+        GGLInstanceIDConfig *instanceIDConfig = [GGLInstanceIDConfig defaultConfig];
+        instanceIDConfig.delegate = self;
+        [[GGLInstanceID sharedInstance] startWithConfig:instanceIDConfig];
+
+        [self setGcmRegistrationOptions: @{kGGLInstanceIDRegisterAPNSOption:deviceToken,
+                                           kGGLInstanceIDAPNSServerTypeSandboxOption:[self gcmSandbox]}];
+
+        [[GGLInstanceID sharedInstance] tokenWithAuthorizedEntity:[self gcmSenderId]
+                                                            scope:kGGLInstanceIDScopeGCM
+                                                          options:[self gcmRegistrationOptions]
+                                                          handler:[self gcmRegistrationHandler]];
+
+        GCMConfig *gcmConfig = [GCMConfig defaultConfig];
+        gcmConfig.receiverDelegate = self;
+        [[GCMService sharedInstance] startWithConfig:gcmConfig];
+
+    } else {
         [self registerWithToken: token];
     }
 #endif
@@ -536,36 +609,31 @@
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
 
--(void)successWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message
+-(void)successWithMessage:(NSString *)callbackId withMsg:(NSString *)message
 {
-    if (myCallbackId != nil)
+    if (callbackId != nil)
     {
         CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
-        [self.commandDelegate sendPluginResult:commandResult callbackId:myCallbackId];
+        [self.commandDelegate sendPluginResult:commandResult callbackId:callbackId];
     }
 }
 
 -(void)registerWithToken:(NSString*)token; {
     // Send result to trigger 'registration' event but keep callback
-    NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:2];
+    NSMutableDictionary* message = [NSMutableDictionary dictionaryWithCapacity:1];
     [message setObject:token forKey:@"registrationId"];
-    if ([self usesFCM]) {
-      [message setObject:@"FCM" forKey:@"registrationType"];
-    } else {
-      [message setObject:@"APNS" forKey:@"registrationType"];
-    }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
 
--(void)failWithMessage:(NSString *)myCallbackId withMsg:(NSString *)message withError:(NSError *)error
+-(void)failWithMessage:(NSString *)callbackId withMsg:(NSString *)message withError:(NSError *)error
 {
     NSString        *errorMessage = (error) ? [NSString stringWithFormat:@"%@ - %@", message, [error localizedDescription]] : message;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
 
-    [self.commandDelegate sendPluginResult:commandResult callbackId:myCallbackId];
+    [self.commandDelegate sendPluginResult:commandResult callbackId:callbackId];
 }
 
 -(void) finish:(CDVInvokedUrlCommand*)command

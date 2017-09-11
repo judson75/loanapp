@@ -15,6 +15,10 @@
         },
         "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "com.debtly.loan"
+        },
+        "phonegap-plugin-push": {
+            "SENDER_ID": "1058444389453",
+            "PACKAGE_NAME": "com.debtly.loan"
         }
     },
     "dependent_plugins": {}
