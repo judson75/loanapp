@@ -2,7 +2,7 @@
 <widget id="com.debtly.loan" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>LoanApp</name>
     <description>
-        A basic Framework7 template for PhoneGap.
+        Manage your loans in one convenient spot. Record and track payments, calculate savings and shortened payoff dates.
     </description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
