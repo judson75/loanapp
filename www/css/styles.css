@@ -13,6 +13,14 @@ html, * {
 	box-sizing: border-box;
 }
 
+a {
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+
 h1 {
 	font-family: 'Open Sans', sans-serif;
 	margin: 0 0 20px 0;
@@ -147,7 +155,8 @@ hr {
 	max-width: 48%;
 	display: inline-block;
 	font-size: 14px;
-	padding: 10px;}
+	padding: 10px;
+}
 
 .modal-footer .btn:last-child {
 	margin-left: 1%;
@@ -646,6 +655,20 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 	
 	.addAcctBtn {
 		font-size: 11px !important;
+	}
+
+	.upgradeAcctBtn {
+		font-size: 11px !important;
+	}
+
+	.upgradeAcctBtn a {
+		color: #000;
+		cursor: pointer;
+	}
+
+	.upgradeAcctBtn a:hover {
+		color: #4abdac;
+		cursor: pointer;
 	}
 
 #savings-circle {

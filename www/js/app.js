@@ -7,13 +7,26 @@ var $$ = Dom7;
 
 var serviceURL = 'https://okmlshub.com/judson/loan/api/v1/';
 var storage = window.localStorage;
-var pushNotification;
-
+/*
+var push = PushNotification.init({
+	"android": {
+		"senderID": "1058444389453"
+	},
+	"browser": {},
+	"ios": {
+		"sound": true,
+		"vibration": true,
+		"badge": true
+	},
+	"windows": {}
+});
+*/
 // Add view
 var mainView = app.addView('.view-main', {
     dynamicNavbar: true
 });
 
+//deleteStorage('dllogin');
 //setStorage('user_id', 1);
 setStorage('max_accounts', 1);
 
@@ -47,20 +60,18 @@ app.onPageInit('about', function (page) {
 	
 })
 
-// Option 2. Using one 'pageInit' event handler for all pages:
+
 $$(document).on('pageInit', function (e) {
     // Get page data from event data
     var page = e.detail.page;
 	/*console.log("PAGE NAME: " + page.name);*/
 	if (page.name === 'index') {
-		console.log('INDEX, CHECK LOGGIN: ' + isLoggedIn);
-
+		//console.log('INDEX, CHECK LOGGIN: ' + isLoggedIn());
+		if($('#acct-id-input').val() == '') {
+			$('#acct-id-input').val(setStorage('acct-id'));
+			buildDashboard();
+		}
 	}
-    if (page.name === 'about') {
-        // Following code will be executed for page with data-page attribute equal to "about"
-        app.alert('Here comes About page');
-        loading();
-    }
     
     if (page.name === 'amortization') {
 		var amount = $('input[name="loan_amount"]').val().replace(/,/g, '');
@@ -186,12 +197,8 @@ $$(document).on('pageInit', function (e) {
 	}
 })
 
-$$(document).on('pageInit', '.page[data-page="about"]', function (e) {
-    // Following code will be executed for page with data-page attribute equal to "about"
-    app.alert('Here comes About page');
-})
-
 $$(document).on('click', '.loginBtn', function() {
+	$('alert').remove();
 	var email = $$('input[name="email"]').val();
 	var password = $$('input[name="password"]').val();
 	$$.ajax({
@@ -217,12 +224,65 @@ $$(document).on('click', '.loginBtn', function() {
 				setStorage('user_id', obj.data.id);
 				setStorage('dllogin', 1);
 				setStorage('max_accounts', obj.data.max_accounts);
-				//$.mobile.navigate("#page-dashboard", {transition: "slide"});
-				//var mainView = app.addView('.view-dashboard', {
-				 //   dynamicNavbar: true
-				//});
 				mainView.router.loadPage('index.html');
 				//Push Notify
+				/* 
+				push.on('registration', function(data) {
+					alert('registration event: ' + data.registrationId);
+
+					var oldRegId = localStorage.getItem('registrationId');
+					if (oldRegId !== data.registrationId) {
+						// Save new registration ID
+						localStorage.setItem('registrationId', data.registrationId);
+						// Post registrationId to your app server as the value has changed
+						$$.ajax({
+							url : serviceURL,
+							type : 'POST',
+							data : {
+								'method': 'post',
+								'action': 'push_token',
+								'format': 'json',
+								'user' : obj.data.id, 
+								'token': data.registrationId
+							},
+							dataType: 'html',
+							beforeSend: function() {
+
+							},
+							success : function(data) {
+								console.log("DATA: " + data);
+								var obj = $.parseJSON(data);
+								if(obj.code === 1) {
+									
+								}
+								else {
+					
+								}
+							},
+							error : function(request,error) {
+								console.log("Request (error): "+JSON.stringify(request));
+							}
+						});
+						
+					}
+				});
+
+				push.on('error', function(e) {
+					alert("push error = " + e.message);
+				});
+
+				push.on('notification', function(data) {
+					alert('notification event');
+					navigator.notification.alert(
+						data.message,         // message
+						null,                 // callback
+						data.title,           // title
+						'Ok'                  // buttonName
+					);
+			   });
+			   */
+				
+				/*
 				try { 
                 	pushNotification = window.plugins.pushNotification;
           			//$("#app-status-ul").append('<li>registering ' + device.platform + '</li>');
@@ -247,9 +307,11 @@ $$(document).on('click', '.loginBtn', function() {
 	                txt+="Error description: " + err.message + "\n\n"; 
 	                alert(txt); 
 	            }
+				*/
 			}
 			else {
-				//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
+				
+				
 			}
 			loading('hide');
 		},
@@ -321,6 +383,7 @@ $(document).on('click', '.refreshBtn', function() {
 
 $(document).on('click', '.addAcctBtn', function() {
 	showAccountSetupScreen(null);
+	$('.switchAccountBtn').click();
 });
 
 $(document).on('click', '.editAcctBtn', function() {
@@ -454,6 +517,7 @@ $(document).on('click', '#account-container li.sub-account-link', function() {
 	$('#account-container').removeClass('open');
 	var id = $(this).data('id');
 	$('#acct-id-input').val(id);
+	setStorage('acct-id', id);
 	buildDashboard();
 });
 
@@ -848,12 +912,12 @@ function showAccountSetupScreen(id) {
 	$('.app-modal').attr('id', 'account-setup-modal');
 	var form = '';
 	//see if user has more accounts
-	if(id == null && getStorage('account_count') >= getStorage('max_accounts')) {
+	/*if(id == null && getStorage('account_count') >= getStorage('max_accounts')) {
 		form += '<h1>You have reached the maximum accounts</h1>';
 		form += '<p>Click below to upgrade your account to unlock unlimited accounts</p>';
-		$('.modal-footer').html('<button type="button" class="btn btn-primary upgradeAcctBtn">Upgrade Account</button> <button type="button" class="btn btn-danger closeModal">Cancel</button>');
+		$('.modal-footer').html('<a href="upgrade.html" class="btn btn-primary">Upgrade Account</a> <button type="button" class="btn btn-danger closeModal">Cancel</button>');
 	}
-	else {
+	else {*/
 		//Form
 		form += '<form id="acctSetupFrm" method="post">';
 		var orig_date = '';
@@ -932,7 +996,7 @@ function showAccountSetupScreen(id) {
 		form += '</div>';
 		form += '</form>';
 		$('.modal-footer').html('<button type="button" class="btn btn-primary saveAcctBtn">Save Changes</button> <button type="button" class="btn btn-danger closeModal">Cancel</button>');
-	}
+	/*}*/
 	$('.modal-body').html(form);
 	
 	modalOpen('account-setup-modal');
@@ -1041,6 +1105,71 @@ function buildDashboard() {
 	$('#user-id-input').val()
 	var user_id = $('#user-id-input').val();
 	var acct_id = $('#acct-id-input').val();
+	
+	//alert(push);
+	
+	//Push Notify
+	/*
+	push.on('registration', function(data) {
+		alert('registration event: ' + data.registrationId);
+
+		var oldRegId = localStorage.getItem('registrationId');
+		if (oldRegId !== data.registrationId) {
+			// Save new registration ID
+			localStorage.setItem('registrationId', data.registrationId);
+			// Post registrationId to your app server as the value has changed
+			$$.ajax({
+				url : serviceURL,
+				type : 'POST',
+				data : {
+					'method': 'post',
+					'action': 'push_token',
+					'format': 'json',
+					'user' : user_id, 
+					'token': data.registrationId
+				},
+				dataType: 'html',
+				beforeSend: function() {
+
+				},
+				success : function(data) {
+					console.log("DATA: " + data);
+					var obj = $.parseJSON(data);
+					if(obj.code === 1) {
+
+					}
+					else {
+
+					}
+				},
+				error : function(request,error) {
+					console.log("Request (error): "+JSON.stringify(request));
+				}
+			});
+
+		}
+	});
+
+	push.on('error', function(e) {
+		alert("push error = " + e.message);
+	});
+
+	push.on('notification', function(data) {
+		alert('notification event');
+		navigator.notification.alert(
+			data.message,         // message
+			null,                 // callback
+			data.title,           // title
+			'Ok'                  // buttonName
+		);
+	});
+
+	*/
+	
+	//var pushNotification = window.plugins.pushNotification;
+	//PushNotification.init();
+	//pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"1058444389453","ecb":"app.onNotificationGCM"}); 
+	
 	$.ajax({
 		url : serviceURL,
 		type : 'POST',
@@ -1058,6 +1187,7 @@ function buildDashboard() {
 		success : function(data) {              
 			/*console.log('Dashboard Data: ' + data);*/
 			var obj = $.parseJSON(data);
+			$('#dashboard-container').html('');
 			//obj.data.id;
 			//console.log(obj.data.acct.id);
 			$('#acct-id-input').val(obj.data.acct.id);
@@ -1089,8 +1219,8 @@ function buildDashboard() {
 			}
 			$('.alerts-container').html(alerts);
 			//Loan Overview
-			var loan_html = '';
-		
+			var dashboard_html = '';
+			dashboard_html += '<div id="db-left"><div id="loan-overview">';
 			$('#start-date-input').val(obj.data.acct.orig_date);
 			$('#account-title-input').val(obj.data.acct.account_title);
 			$('#account-number-input').val(obj.data.acct.acct_number);
@@ -1148,63 +1278,73 @@ function buildDashboard() {
 			$('#int-rate').val(obj.data.acct.int_rate);
 			$('#loan-amount-input').val(obj.data.acct.loan_amount);
 			$('#loan-years-input').val((obj.data.acct.loan_term/12));
-			loan_html += '<div id="ov-switch">';
-			loan_html += '<button class="btn btn-default btn-sm switchAccountBtn">Switch Account <i class="typcn typcn-arrow-sorted-down"></i></button>';
-			loan_html += '<div id="account-container">';
-			loan_html += '<ul>';
+			dashboard_html += '<div id="ov-switch">';
+			dashboard_html += '<button class="btn btn-default btn-sm switchAccountBtn">Switch Account <i class="typcn typcn-arrow-sorted-down"></i></button>';
+			dashboard_html += '<div id="account-container">';
+			dashboard_html += '<ul>';
 			//Sub accounts
 			var account_count = 0
 			$.each( obj.data.sub_accounts, function( index, value ){
 				/*console.log(obj.data.sub_accounts[index].account_title);*/
-				loan_html += '<li class="sub-account-link" data-id="'  + obj.data.sub_accounts[index].id + '">' + obj.data.sub_accounts[index].account_title + ' (Acct# ' + obj.data.sub_accounts[index].acct_number + ')</li>';
+				dashboard_html += '<li class="sub-account-link" data-id="'  + obj.data.sub_accounts[index].id + '">' + obj.data.sub_accounts[index].account_title + ' (Acct# ' + obj.data.sub_accounts[index].acct_number + ')</li>';
 				account_count++;
 			});
 			setStorage('account_count', account_count);
-			loan_html += '<li class="addAcctBtn">+ Add New Account</li></ul>';
-			loan_html += '</div>';
-			loan_html += '</div>';
-			loan_html += '<div class="ov-acct"><span class="ov-title">Acct:</span><small>#' + obj.data.acct.acct_number + '</small><br>' + obj.data.acct.account_title + '</div>';
-			loan_html += '<div class="ov-div"><span class="ov-caption">Loan Amt:</span> <b>$' + obj.data.acct.loan_amount + '</b></div>';
-			loan_html += '<div class="ov-div"><span class="ov-caption">Loan Balance:</span> <b>$' + obj.data.acct.loan_balance + '</b></div>';
-			loan_html += '<div class="ov-div"><span class="ov-caption">Loan Orig. Date:</span> <b>' + orig_date + '</b></div>';
-			loan_html += '<div class="ov-div"><span class="ov-caption">Orig. Payoff Date:</span> <b>' + payoff_date + '</b></div>';
-			if(adj_payoff_date != '') {
-				loan_html += '<div class="ov-div"><span class="ov-caption">Est. Payoff Date:</span> <b>' + adj_payoff_date + '</b></div>';
+			if(getStorage('account_count') >= getStorage('max_accounts')) {
+				dashboard_html += '<li class="upgradeAcctBtn"><a href="upgrade.html">+ Add New Account</a></li>';
 			}
-			loan_html += '<div class="ov-div"><span class="ov-caption">Interest Rate:</span> <b>' + obj.data.acct.int_rate + '%</b></div>';
+			else {
+				dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
+			}
+			dashboard_html += '</ul>';
+			dashboard_html += '</div>';
+			dashboard_html += '</div>';
+			dashboard_html += '<div class="ov-acct"><span class="ov-title">Acct:</span><small>#' + obj.data.acct.acct_number + '</small><br>' + obj.data.acct.account_title + '</div>';
+			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Amt:</span> <b>$' + obj.data.acct.loan_amount + '</b></div>';
+			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Balance:</span> <b>$' + obj.data.acct.loan_balance + '</b></div>';
+			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Orig. Date:</span> <b>' + orig_date + '</b></div>';
+			dashboard_html += '<div class="ov-div"><span class="ov-caption">Orig. Payoff Date:</span> <b>' + payoff_date + '</b></div>';
+			if(adj_payoff_date != '') {
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Est. Payoff Date:</span> <b>' + adj_payoff_date + '</b></div>';
+			}
+			dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Rate:</span> <b>' + obj.data.acct.int_rate + '%</b></div>';
 			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
 				$('#int-rate-input').val(obj.data.acct.int_saved);
 				$('#saved-percent-input').val(obj.data.acct.saved_percent);
-				loan_html += '<div class="ov-div"><span class="ov-caption">Interest Saved:</span> <b>$' + obj.data.acct.int_saved + '</b></div>';
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Saved:</span> <b>$' + obj.data.acct.int_saved + '</b></div>';
+			}
+			
+			dashboard_html += '<div id="acctEdit"><i class="fa fa-trash-o deleteAcctBtn" data-id="' + obj.data.acct.id + '"></i> <i class="fa fa-pencil-square-o editAcctBtn" data-id="' + obj.data.acct.id + '"></i></div>';
+			
+			//$('#loan-overview').html(loan_html);
+			dashboard_html += '</div>';
+			dashboard_html += '<div id="make-payment-container">';
+			dashboard_html += '<button class="btn btn-primary makePaymentBtn">Make Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a>';
+			dashboard_html += '</div>';
+			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
 				var int_saved = $('input[name="int_saved"]').val();
 				var saved_percent = $('input[name="saved_percent"]').val();
-				$('#make-payment-container').after('<div class="sidebar" id="int-saved-cont"><h4>Money Saved</h4><div id="savings-circle"></div></div>');
-				$("#savings-circle").circliful({
-					animationStep: 5,
-					foregroundBorderWidth: 23,
-					backgroundBorderWidth: 25,
-					percent: saved_percent,
-					icon: 'f155',
-					iconSize: '40',
-					iconPosition: 'middle',
-					showPercent: 1,
-					target: 0,
-					noPercentageSign: true,
-					replacePercentageByText: "$" + int_saved,
-					percentageTextSize: '14'
-				});
-
+				dashboard_html += '<div class="sidebar" id="int-saved-cont"><h4>Money Saved</h4><div id="savings-circle"></div></div>';
 			}
-			else {
-				$('#int-saved-cont').remove();
-			}
-			loan_html += '<div id="acctEdit"><i class="fa fa-trash-o deleteAcctBtn" data-id="' + obj.data.acct.id + '"></i> <i class="fa fa-pencil-square-o editAcctBtn" data-id="' + obj.data.acct.id + '"></i></div>';
-			
-			$('#loan-overview').html(loan_html);
-			
+			dashboard_html += '<div id="est-savings-container">';
+			dashboard_html += '<button class="btn btn-secondary showsSavingsBtn">Estimate Savings <i class="typcn typcn-arrow-sorted-down"></i></button>';
+			dashboard_html += '<form id="est-savings-form" class="sidebar">';
+			dashboard_html += '<div class="form-group">';
+			dashboard_html += '<label for="addl_pmt">Additional Principal Payment:</label>';
+			dashboard_html += '<div id="esinput">';
+			dashboard_html += '<input type="text" name="addl_pmt" id="addl_pmt" data-role="none" placeholder="">';
+			dashboard_html += '<button type="button" class="btn btn-primary btn-sm calcSavingsBtn"><i class="fa fa-usd" aria-hidden="true"></i></button>';
+			dashboard_html += '</div>';
+			dashboard_html += '</div>';
+			dashboard_html += '<div id="savingsDisplay"></div>';
+			dashboard_html += '</form>';
+			dashboard_html += '</div>';
+			dashboard_html += '</div>';
 			//Payments
-			var payments_html = '<h1>My Payments</h1>';
-			payments_html += '<div id="payments-table">';
+			dashboard_html += '<div id="db-right">';
+			dashboard_html += '<div id="payments-container">';
+			dashboard_html += '<h1>My Payments</h1>';
+			dashboard_html += '<div id="payments-table">';
 			if(obj.data.payments != '' && obj.data.payments != null) {
 				$.each( obj.data.payments , function( index, value ){
 					var payment_date = '';
@@ -1224,28 +1364,50 @@ function buildDashboard() {
 						payment_date = mm + '/' + dd + '/' + yyyy;
 					}
 					var status_marker = (obj.data.payments[index].status == 1) ? '<i class="fa fa-check fa-lg payClr changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>' : '<i class="fa fa-check fa-lg payNot changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>';
-					payments_html += '<div class="payment-container" id="pay-container-' +  obj.data.payments[index].id + '">';
-					payments_html += '<small>' + payment_date + '</small>';
-					payments_html += '<div class="payment-amt">$' + obj.data.payments[index].payment_amt + '</div>';
-					payments_html += '<div class="payment-type">' + obj.data.payments[index].payment_type + '</div>';
-					payments_html += '<div class="payment-btns">';
+					dashboard_html += '<div class="payment-container" id="pay-container-' +  obj.data.payments[index].id + '">';
+					dashboard_html += '<small>' + payment_date + '</small>';
+					dashboard_html += '<div class="payment-amt">$' + obj.data.payments[index].payment_amt + '</div>';
+					dashboard_html += '<div class="payment-type">' + obj.data.payments[index].payment_type + '</div>';
+					dashboard_html += '<div class="payment-btns">';
 					var cbtn_disp = 'inline-block';
 					if(obj.data.payments[index].status == 1) {
 						cbtn_disp = 'none';
 					}
-					payments_html += '<span id="pay-status-' + obj.data.payments[index].id + '" class="pay-status">' + status_marker + '</span>';
-					payments_html += '<i class="typcn typcn-pencil editPaymentBtn" data-id="' + obj.data.payments[index].id + '"></i>';
-					payments_html += '<i class="typcn typcn-cancel cancelPaymentBtn" data-id="' + obj.data.payments[index].id + '" style="display: ' + cbtn_disp + '"></i>';
-					payments_html += '</div>';
-					payments_html += '</div>';
+					dashboard_html += '<span id="pay-status-' + obj.data.payments[index].id + '" class="pay-status">' + status_marker + '</span>';
+					dashboard_html += '<i class="typcn typcn-pencil editPaymentBtn" data-id="' + obj.data.payments[index].id + '"></i>';
+					dashboard_html += '<i class="typcn typcn-cancel cancelPaymentBtn" data-id="' + obj.data.payments[index].id + '" style="display: ' + cbtn_disp + '"></i>';
+					dashboard_html += '</div>';
+					dashboard_html += '</div>';
 				});
 			}
 			else {
-				payments_html += 'No Payments. <span class="makePaymentBtn btn btn-primary btn-xs">Click here to get started</span>';
+				dashboard_html += '<p style="text-align: center;">You have not entered any payments.</p> <span class="makePaymentBtn btn btn-primary btn-sm">Click here to get started</span>';
 			}
-			payments_html += '</div>';
-			$('#payments-container').html(payments_html);
+		
+			dashboard_html += '</div>';
+			dashboard_html += '</div>';
+			dashboard_html += '</div>';
+			dashboard_html += '<div class="clr"></div>';
+			//$('#payments-container').html(payments_html);
 			//$.mobile.loading('hide');
+			$('#dashboard-container').html(dashboard_html);
+			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
+				$("#savings-circle").circliful({
+					animationStep: 5,
+					foregroundBorderWidth: 23,
+					backgroundBorderWidth: 25,
+					percent: saved_percent,
+					icon: 'f155',
+					iconSize: '40',
+					iconPosition: 'middle',
+					showPercent: 1,
+					target: 0,
+					noPercentageSign: true,
+					replacePercentageByText: "$" + int_saved,
+					percentageTextSize: '14'
+				});
+			}
+
 			$('.page-overlay').fadeOut('fast', function() {
 				$(this).remove();
 			});
@@ -1268,19 +1430,14 @@ function buildDashboard() {
 	}
 	
 	function onNotificationAPN (event) {
-		if ( event.alert )
-		{
+		if ( event.alert ) {
 			navigator.notification.alert(event.alert);
 		}
-	
-		if ( event.sound )
-		{
+		if ( event.sound ) {
 			var snd = new Media(event.sound);
 			snd.play();
 		}
-	
-		if ( event.badge )
-		{
+		if ( event.badge ) {
 			pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
 		}
 	}

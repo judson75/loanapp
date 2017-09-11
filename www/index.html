@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
-    <!-- Your app title -->
     <title>My App</title>
     <link rel="stylesheet" href="lib/framework7/css/framework7.ios.min.css">
     <link rel="stylesheet" href="lib/framework7/css/framework7.ios.colors.min.css">
@@ -58,8 +57,7 @@
 	                  			</li>
 	                		</ul>
 	                		<div class="list-block-label">
-	                			<p>Some text with login information.</p>
-	                			<p><a href="#" class="close-login-screen">Close Login Screen</a></p>
+	                			<p>If you do not have an account, register by <a href="signup.html" class="close-login-screen">clicking here</a></p>
 	                		</div>
 	              		</div>
             		</form>
@@ -108,34 +106,7 @@
 							<input type="hidden" id="int-rate" name="int_rate" value="">
 							<input type="hidden" id="loan-amount-input" name="loan_amount" value="">
 							<input type="hidden" id="loan-years-input" name="loan_years" value="">
-							<div id="db-left">
-								<div id="loan-overview"></div>
-								<div id="make-payment-container">
-									<button class="btn btn-primary makePaymentBtn">Make Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a> 
-								</div>
-
-								<div id="est-savings-container">
-									<button class="btn btn-secondary showsSavingsBtn">Estimate Savings <i class="typcn typcn-arrow-sorted-down"></i></button>
-									<form id="est-savings-form" class="sidebar">
-										<div class="form-group">
-											<label for="addl_pmt">Additional Principal Payment:</label>
-											<div id="esinput">
-												<input type="text" name="addl_pmt" id="addl_pmt" data-role="none" placeholder="">
-												<button type="button" class="btn btn-primary btn-sm calcSavingsBtn"><i class="fa fa-usd" aria-hidden="true"></i></button>
-											</div>
-										</div>
-										<div id="savingsDisplay"></div>
-									</form>
-								</div>
-							</div>
-							<div id="db-right">
-								<div id="payments-container">
-									<h1>My Payments</h1>
-									<!-- Test Table -->
-									<div id="payments-container" class=""></div>
-								</div>
-							</div>
-							<div class="clr"></div>
+							<div id="dashboard-container"></div>
 						</div>
                     </div>
                 </div>
@@ -170,6 +141,7 @@
 	<script src="js/jquery-1.12.4.min.js"></script>
     <script src="js/jquery.circliful.min.js"></script>
     <script type="text/javascript" src="lib/framework7/js/framework7.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>

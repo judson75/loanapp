@@ -1,10 +1,16 @@
-#phonegap-plugin-push [![Build Status](https://travis-ci.org/phonegap/phonegap-plugin-push.svg)](https://travis-ci.org/phonegap/phonegap-plugin-push)
+# phonegap-plugin-push [![Build Status](https://travis-ci.org/phonegap/phonegap-plugin-push.svg)](https://travis-ci.org/phonegap/phonegap-plugin-push)
 
 > Register and receive push notifications
 
+# Warning
+
+The links below take you to the version 2.x documentation which includes a number of breaking API changes from version 1.x, mostly the move from GCM to FCM. If you are using version 1.x please reference the docs in the [v1.x branch](https://github.com/phonegap/phonegap-plugin-push/tree/v1.x).
+
 # What is this?
 
-This plugin offers support to receive and handle native push notifications with a **single unified API**, and **with no dependency on any other plugins**.
+This plugin offers support to receive and handle native push notifications with a **single unified API**.
+
+Starting with version `2.0.0`, this plugin will support `CocoaPods` installation of the `Firebase Cloud Messaging` library. More details are available in the [Installation](docs/INSTALLATION.md#cocoapods) documentation.
 
 - [Reporting Issues](docs/ISSUES.md)
 - [Installation](docs/INSTALLATION.md)
