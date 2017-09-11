@@ -849,10 +849,12 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 
 .deleteAcctBtn {
 	color: #d6003c;
+	
 }
 
 .editAcctBtn {
 	color: #4abdac;
+	vertical-align: middle;
 }
 
 #make-payment-container {

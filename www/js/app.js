@@ -109,6 +109,7 @@ $$(document).on('pageInit', function (e) {
 	}
 	
 	if (page.name === 'alerts') {
+		
 		var user_id = $('input[name="user_id"]').val();
 		$$.ajax({
 			url : serviceURL,
@@ -134,6 +135,46 @@ $$(document).on('pageInit', function (e) {
 					//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
 				}
 				loading('hide');
+				$$('.page-content').on('scroll',function(e){
+					$('.alert-tr').each(function( index ) {
+						if(isScrolledIntoView($(this)) === true) {
+							var id = $(this).attr('id').replace('alert-tr-', '');
+							/*console.log("ID: " + id);*/
+							//mark as read 
+							if(!$(this).hasClass('read')) {
+								$$.ajax({
+									url : serviceURL,
+									type : 'POST',
+									data : {
+										'method': 'post',
+										'action': 'mark_alert_read',
+										'format': 'json',
+										'id' : id, 
+									},
+									dataType: 'html',
+									beforeSend: function() {
+
+									},
+									success : function(data) {
+									console.log("ALERT STATUS DATA: " + data);
+										var obj = $.parseJSON(data);
+										if(obj.code === 1) {
+											$('#alert-tr-' + id).addClass('read');
+										}
+										else {
+
+										}
+
+									},
+									error : function(request,error) {
+										console.log("Request (error): "+JSON.stringify(request));
+									}
+								});
+							}
+						}
+					});	
+			
+				});
 			},
 			error : function(request,error) {
 				$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
@@ -221,11 +262,6 @@ $$(document).on('click', '.loginBtn', function() {
 
 })
 
-/* Test desktop */
-$(document).ready( function() {
-
-})
-
 /*
 $('.datepicker').datepicker({
 	changeMonth: true,
@@ -235,74 +271,6 @@ $('.datepicker').datepicker({
 });
 */
 
-$(window).scroll( function() {
-		if($('.alert-tr').length) {
-			$('.alert-tr').each(function( index ) {
-				if(isScrolledIntoView($(this)) === true) {
-					var id = $(this).attr('id').replace('alert-tr-', '');
-//console.log("ID: " + id);
-					//mark as read 
-					if(!$(this).hasClass('read')) {
-						
-						$$.ajax({
-						url : serviceURL,
-						type : 'POST',
-						data : {
-							'method': 'post',
-							'action': 'mark_alert_read',
-							'format': 'json',
-							'id' : id, 
-						},
-						dataType: 'html',
-						beforeSend: function() {
-
-						},
-						success : function(data) {
-						console.log("DATA: " + data);
-							var obj = $.parseJSON(data);
-							if(obj.code === 1) {
-								$(this).addClass('read');
-							}
-							else {
-
-							}
-
-						},
-						error : function(request,error) {
-							console.log("Request (error): "+JSON.stringify(request));
-						}
-					});
-						/*
-						var request = $.ajax({
-							url: site_url + "lib/inc/ajax.inc.php",
-							type: "POST",
-							data: { action : 'mark_alert_read', id : id },
-						});
-
-						request.done(function(data) {
-							console.log("DATA: " + data);
-							var obj = $.parseJSON(data);
-							if(obj.resp === true) {
-
-							}
-							else {
-
-							}	
-						});
-
-						request.fail(function( jqXHR, textStatus ) {
-							alert( "Request failed: " + textStatus );
-							$('.pageOverlay').remove();
-						});
-						*/
-						
-					}
-				}
-			});
-
-		}
-	});
-});
 
 $(document).mouseup(function(e) {
     var container = $('#account-container');
@@ -1067,7 +1035,7 @@ function saveAcct() {
 }
 
 function buildDashboard() {
-	console.log("Building Dashboard");
+	/*console.log("Building Dashboard");*/
 	$('#user-id-input').val(getStorage('user_id'));
 	$('body').append('<div class="page-overlay"><div class="loading"><span style="width:42px; height:42px" class="preloader preloader-white"></span></div></div>');
 	$('#user-id-input').val()
@@ -1088,7 +1056,7 @@ function buildDashboard() {
 			
 	  	},
 		success : function(data) {              
-			/*console.log('Data: ' + data);*/
+			/*console.log('Dashboard Data: ' + data);*/
 			var obj = $.parseJSON(data);
 			//obj.data.id;
 			//console.log(obj.data.acct.id);
@@ -1102,7 +1070,7 @@ function buildDashboard() {
 			if(obj.data.alerts != '' && obj.data.alerts != null) {
 				alerts += '<ul>';
 				$.each( obj.data.alerts, function( index, value ) {
-					console.log(obj.data.alerts[index].id);
+					/*console.log(obj.data.alerts[index].id);*/
 					alerts += '<li>';
 					var icon = '<i class="typcn typcn-bell"></i>';
 					if(obj.data.alerts[index].type == 'payment') {
@@ -1176,7 +1144,7 @@ function buildDashboard() {
 				} 
 				adj_payoff_date = mm + '/' + dd + '/' + yyyy;
 			}
-			console.log(obj.data.acct.int_rate);
+			/*console.log(obj.data.acct.int_rate);*/
 			$('#int-rate').val(obj.data.acct.int_rate);
 			$('#loan-amount-input').val(obj.data.acct.loan_amount);
 			$('#loan-years-input').val((obj.data.acct.loan_term/12));
