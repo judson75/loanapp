@@ -1,4 +1,4 @@
-# Framework7 PhoneGap Application 
+# Debtstruction Application 
 
 > [Framework7](http://www.idangero.us/framework7) is a Mobile UI framework that can be used to build hybrid apps with PhoneGap. This template allows you to get started using Framework7 
   quickly. 
