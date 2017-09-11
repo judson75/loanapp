@@ -1110,6 +1110,8 @@ function buildDashboard() {
 	//alert(push);
 	
 	//Push Notify
+	
+	/*
 	var push = PushNotification.init({
 		"android": {
 			"senderID": "1058444389453"
@@ -1128,7 +1130,7 @@ function buildDashboard() {
 		//document.getElementById("gcm_id").value= data.registrationId; //showing registration id in our app. If it shows our registration process is suscess
 		//$("#gcm_id").val(data.registrationId);  if you are using jquery
 	});
-
+*/
 	/*
 	push.on('registration', function(data) {
 		alert('registration event: ' + data.registrationId);
