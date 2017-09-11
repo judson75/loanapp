@@ -1110,6 +1110,25 @@ function buildDashboard() {
 	//alert(push);
 	
 	//Push Notify
+	var push = PushNotification.init({
+		"android": {
+			"senderID": "1058444389453"
+		},
+		"browser": {},
+		"ios": {
+			"sound": true,
+			"vibration": true,
+			"badge": true
+		},
+		"windows": {}
+	});
+	
+	push.on('registration', function(data) {   
+		alert(data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
+		//document.getElementById("gcm_id").value= data.registrationId; //showing registration id in our app. If it shows our registration process is suscess
+		//$("#gcm_id").val(data.registrationId);  if you are using jquery
+	});
+
 	/*
 	push.on('registration', function(data) {
 		alert('registration event: ' + data.registrationId);
