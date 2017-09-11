@@ -225,6 +225,7 @@ $$(document).on('click', '.loginBtn', function() {
 				setStorage('dllogin', 1);
 				setStorage('max_accounts', obj.data.max_accounts);
 				mainView.router.loadPage('index.html');
+				location.reload();
 				//Push Notify
 				/* 
 				push.on('registration', function(data) {
