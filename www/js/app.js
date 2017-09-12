@@ -7,21 +7,7 @@ var $$ = Dom7;
 
 var serviceURL = 'https://okmlshub.com/judson/loan/api/v1/';
 var storage = window.localStorage;
-var PushNotification;
-/*
-var push = PushNotification.init({
-	"android": {
-		"senderID": "1058444389453"
-	},
-	"browser": {},
-	"ios": {
-		"sound": true,
-		"vibration": true,
-		"badge": true
-	},
-	"windows": {}
-});
-*/
+
 // Add view
 var mainView = app.addView('.view-main', {
     dynamicNavbar: true
@@ -59,9 +45,12 @@ $$(document).on('deviceready', function() {
 		"windows": {}
 	});
 	
+	oldRegId = getStorage('registrationId');
 	push.on('registration', function(data) {   
-		alert("reg Data: " + data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
-		setStorage('registrationId', data.registrationId);
+		//alert("reg Data: " + data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
+		if(data.registrationId != oldRegId) {
+			setStorage('registrationId', data.registrationId);
+		}
 	});
 	
 	push.on('error', function(e) {
@@ -101,7 +90,7 @@ $$(document).on('pageInit', function (e) {
 	if (page.name === 'index') {
 		//console.log('INDEX, CHECK LOGGIN: ' + isLoggedIn());
 		if($('#acct-id-input').val() == '') {
-			$('#acct-id-input').val(setStorage('acct-id'));
+			$('#acct-id-input').val(getStorage('acct-id'));
 			buildDashboard();
 		}
 	}
@@ -150,6 +139,57 @@ $$(document).on('pageInit', function (e) {
 			}
 		});
 
+	}
+	
+	if (page.name === 'settings') {
+		//get settings
+		var id = getStorage('user_id');
+		$$.ajax({
+			url : serviceURL,
+			type : 'POST',
+			data : {
+				'method': 'get',
+				'action': 'settings',
+				'format': 'json',
+				'id': id,
+			},
+			dataType: 'html',
+			beforeSend: function() {
+				//loading('show');
+		  	},
+			success : function(data) {
+				console.log('Data: ' + data);
+				var obj = $.parseJSON(data);
+				/*console.log('Resp: ' + obj.code); */
+				if(obj.code === 1) {
+					$('#settingsFrm input[name="first_name"]').val(obj.data.first_name);
+					$('#settingsFrm input[name="last_name"]').val(obj.data.last_name);
+					$('#settingsFrm input[name="email"]').val(obj.data.email);
+					$('#settingsFrm input[name="cell_phone"]').val(obj.data.cell_phone);
+					if(obj.data.email_optin == 1) {
+						$('#settingsFrm input[name="email_optin"]').prop('checked', true);
+					}
+					if(obj.data.sms_optin == 1) {
+						$('#settingsFrm input[name="sms_optin"]').prop('checked', true);
+					}
+				}
+				else {
+					
+				}
+			},
+			error : function(request,error) {
+				$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+				console.log("Request (error): "+JSON.stringify(request));
+				loading('hide');
+			}
+		});
+
+	}
+	
+	if (page.name === 'coupon') {
+		$('#payment-amt').html(getStorage('payment-amt'));
+		$('#acct-id').html(getStorage('acct-id'));
+		
 	}
 	
 	if (page.name === 'alerts') {
@@ -259,89 +299,6 @@ $$(document).on('click', '.loginBtn', function() {
 				setStorage('max_accounts', obj.data.max_accounts);
 				mainView.router.loadPage('index.html');
 				location.reload();
-				//Push Notify
-				/* 
-				push.on('registration', function(data) {
-					alert('registration event: ' + data.registrationId);
-
-					var oldRegId = localStorage.getItem('registrationId');
-					if (oldRegId !== data.registrationId) {
-						// Save new registration ID
-						localStorage.setItem('registrationId', data.registrationId);
-						// Post registrationId to your app server as the value has changed
-						$$.ajax({
-							url : serviceURL,
-							type : 'POST',
-							data : {
-								'method': 'post',
-								'action': 'push_token',
-								'format': 'json',
-								'user' : obj.data.id, 
-								'token': data.registrationId
-							},
-							dataType: 'html',
-							beforeSend: function() {
-
-							},
-							success : function(data) {
-								console.log("DATA: " + data);
-								var obj = $.parseJSON(data);
-								if(obj.code === 1) {
-									
-								}
-								else {
-					
-								}
-							},
-							error : function(request,error) {
-								console.log("Request (error): "+JSON.stringify(request));
-							}
-						});
-						
-					}
-				});
-
-				push.on('error', function(e) {
-					alert("push error = " + e.message);
-				});
-
-				push.on('notification', function(data) {
-					alert('notification event');
-					navigator.notification.alert(
-						data.message,         // message
-						null,                 // callback
-						data.title,           // title
-						'Ok'                  // buttonName
-					);
-			   });
-			   */
-				
-				/*
-				try { 
-                	pushNotification = window.plugins.pushNotification;
-          			//$("#app-status-ul").append('<li>registering ' + device.platform + '</li>');
-         			 alert('Registering ' + device.platform);
-               	 		if(device.platform == 'android' || device.platform == 'Android' ||device.platform == 'amazon-fireos' ) {
-                   		 	pushNotification.register(
-                   	 		successHandler, 
-                    		errorHandler, {
-		                        "senderID":"1058444389453",
-		                        "ecb":"onNotification"
-		                    });     // required!
-							
-                    		alert('Registered the Android device');
-		                } 
-		                else {
-		                    pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});    // required!
-		                    alert('Registered the iOS device');
-		                }
-            	}
-            	catch(err) { 
-	                txt="There was an error on this page.\n\n"; 
-	                txt+="Error description: " + err.message + "\n\n"; 
-	                alert(txt); 
-	            }
-				*/
 			}
 			else {
 				
@@ -357,16 +314,6 @@ $$(document).on('click', '.loginBtn', function() {
 	});
 
 })
-
-/*
-$('.datepicker').datepicker({
-	changeMonth: true,
-	changeYear: true, 
-	minDate: -20, 
-	maxDate: "+1M +10D",
-});
-*/
-
 
 $(document).mouseup(function(e) {
     var container = $('#account-container');
@@ -385,6 +332,55 @@ $(document).mouseup(function(e) {
     }
 
 
+});
+
+$(document).on('click', '.updateSettingsBtn', function() {
+	$('.alert').remove();
+	var id = getStorage('user_id');
+	var first_name = $('#settingsFrm input[name="first_name"]').val();
+	var last_name = $('#settingsFrm input[name="last_name"]').val();
+	var email = $('#settingsFrm input[name="email"]').val();
+	var cell_phone = $('#settingsFrm input[name="cell_phone"]').val();
+	var email_optin = $('#settingsFrm input[name="email_optin"]:checked').val();
+	var sms_optin = $('#settingsFrm input[name="sms_optin"]:checked').val();
+	var password = $('#settingsFrm input[name="password"]').val();
+	$$.ajax({
+		url : serviceURL,
+		type : 'POST',
+		data : {
+			'method': 'post',
+			'action': 'settings',
+			'format': 'json',
+			'id': id,
+			'first_name': first_name,
+			'last_name': last_name,
+			'email' : email,
+			'cell_phone': cell_phone,
+			'email_optin': email_optin,
+			'sms_optin': sms_optin,
+			'password': password,
+		},
+		dataType: 'html',
+		beforeSend: function() {
+			loading('show');
+	  	},
+		success : function(data) {
+		console.log("DATA: " + data);
+			var obj = $.parseJSON(data);
+			if(obj.code === 1) {
+			///	location.reload(); 
+				$('#settingsFrm').prepend('<div class="alert alert-success">Your settings have been saved</div>');
+			}
+			else {
+				//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
+			}
+			loading('hide');
+		},
+		error : function(request,error) {
+			console.log("Request (error): "+JSON.stringify(request));
+			loading('hide');
+		}
+	});
 });
 
 $(document).on('keyup', 'input[name="loan_term"]', function() {
@@ -412,6 +408,16 @@ $(document).on('click', '.switchAccountBtn', function() {
 
 $(document).on('click', '.refreshBtn', function() {
 	location.reload(); 
+});
+
+$(document).on('click', '.upgradeAcctBtn', function() {
+	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id'), '_blank', 'location=yes');
+	ref.addEventListener('loadstop', function() {
+		//this is for the page displayed...
+		ref.insertCSS({file: "/css/styles.css"});
+	});
+
+	ref.show();
 });
 
 
@@ -741,7 +747,7 @@ $(document).on('click', '.savePaymentBtn', function() {
 		error_count++;
 	}
 
-	console.log(payment_type);
+	//console.log(payment_type);
 	
 	if(payment_type == '' || payment_type == undefined) {
 		$('input[name="payment_type"]').parent('div').addClass('hasError');
@@ -776,9 +782,18 @@ $(document).on('click', '.savePaymentBtn', function() {
 		console.log("DATA: " + data);
 			var obj = $.parseJSON(data);
 			if(obj.code === 1) {
-				//loading('hide', function() {
+				if(payment_type == 'principal' && status != 1) {
+					//location.href = site_url + 'coupon?id=' + id + '&amt=' + payment_amount + '&usr=' + user_id;
+					setStorage('payment-amt', payment_amount);
+					//setStorage('acct', account_count);
+					//setStorage('acct-id')
+					//getStorage('acct-id')
+					mainView.router.loadPage('coupon.html');
+					
+				}
+				else {
 					location.reload();
-				//})			
+				}
 			}
 			else {
 				//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
@@ -1039,7 +1054,7 @@ function showAccountSetupScreen(id) {
 function saveAcct() {
 	var error_count = 0;
 	$('.helper').remove();
-	var user_id = 1;
+	var user_id = getStorage('user_id');
 	//check required
 	var id = $('#acctSetupFrm input[name="id"]').val();
 	var account_title = $('#acctSetupFrm input[name="account_title"]').val();
@@ -1132,6 +1147,41 @@ function saveAcct() {
 	});
 }
 
+function registerPushToken() {
+	var token = getStorage('registrationId');
+	var user = getStorage('user_id');
+	$$.ajax({
+		url : serviceURL,
+		type : 'POST',
+		data : {
+			'method': 'post',
+			'action': 'push_token',
+			'format': 'json',
+			'token': token, 
+			'user': user,
+		},
+		dataType: 'html',
+		beforeSend: function() {
+			loading('show');
+	  	},
+		success : function(data) {
+		console.log("DATA: " + data);
+			var obj = $.parseJSON(data);
+			if(obj.code === 1) {
+				location.reload(); 
+			}
+			else {
+				//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
+			}
+			loading('hide');
+		},
+		error : function(request,error) {
+			console.log("Request (error): "+JSON.stringify(request));
+			loading('hide');
+		}
+	});
+}
+
 function buildDashboard() {
 	/*console.log("Building Dashboard");*/
 	$('#user-id-input').val(getStorage('user_id'));
@@ -1139,73 +1189,7 @@ function buildDashboard() {
 	$('#user-id-input').val()
 	var user_id = $('#user-id-input').val();
 	var acct_id = $('#acct-id-input').val();
-	
-	//alert(push);
-	
-	alert("REG ID: " + getStorage('registrationId'));
-	
-
-	/*
-	push.on('registration', function(data) {
-		alert('registration event: ' + data.registrationId);
-
-		var oldRegId = localStorage.getItem('registrationId');
-		if (oldRegId !== data.registrationId) {
-			// Save new registration ID
-			localStorage.setItem('registrationId', data.registrationId);
-			// Post registrationId to your app server as the value has changed
-			$$.ajax({
-				url : serviceURL,
-				type : 'POST',
-				data : {
-					'method': 'post',
-					'action': 'push_token',
-					'format': 'json',
-					'user' : user_id, 
-					'token': data.registrationId
-				},
-				dataType: 'html',
-				beforeSend: function() {
-
-				},
-				success : function(data) {
-					console.log("DATA: " + data);
-					var obj = $.parseJSON(data);
-					if(obj.code === 1) {
-
-					}
-					else {
-
-					}
-				},
-				error : function(request,error) {
-					console.log("Request (error): "+JSON.stringify(request));
-				}
-			});
-
-		}
-	});
-
-	push.on('error', function(e) {
-		alert("push error = " + e.message);
-	});
-
-	push.on('notification', function(data) {
-		alert('notification event');
-		navigator.notification.alert(
-			data.message,         // message
-			null,                 // callback
-			data.title,           // title
-			'Ok'                  // buttonName
-		);
-	});
-
-	*/
-	
-	//var pushNotification = window.plugins.pushNotification;
-	//PushNotification.init();
-	//pushNotification.register(app.successHandler, app.errorHandler,{"senderID":"1058444389453","ecb":"app.onNotificationGCM"}); 
-	
+	//alert("REG ID: " + getStorage('registrationId'));	
 	$.ajax({
 		url : serviceURL,
 		type : 'POST',
@@ -1222,6 +1206,10 @@ function buildDashboard() {
 	  	},
 		success : function(data) {              
 			/*console.log('Dashboard Data: ' + data);*/
+			//Register push Token
+			if(getStorage('registrationId') !== '') {
+				registerPushToken();
+			}
 			var obj = $.parseJSON(data);
 			$('#dashboard-container').html('');
 			//obj.data.id;
@@ -1327,7 +1315,7 @@ function buildDashboard() {
 			});
 			setStorage('account_count', account_count);
 			if(getStorage('account_count') >= getStorage('max_accounts')) {
-				dashboard_html += '<li class="upgradeAcctBtn"><a href="upgrade.html">+ Add New Account</a></li>';
+				dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
 			}
 			else {
 				dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
@@ -1457,83 +1445,5 @@ function buildDashboard() {
 		}
 	});
 	
-	function successHandler (result) {
-		alert('result = ' + result);
-	}
-	
-	function errorHandler (error) {
-		alert('error = ' + error);
-	}
-	
-	function onNotificationAPN (event) {
-		if ( event.alert ) {
-			navigator.notification.alert(event.alert);
-		}
-		if ( event.sound ) {
-			var snd = new Media(event.sound);
-			snd.play();
-		}
-		if ( event.badge ) {
-			pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
-		}
-	}
-	
-	function onNotification(e) {
-		$("#app-status-ul").append('<li>EVENT -> RECEIVED:' + e.event + '</li>');
-	
-		switch( e.event )
-		{
-		case 'registered':
-			if ( e.regid.length > 0 )
-			{
-				$("#app-status-ul").append('<li>REGISTERED -> REGID:' + e.regid + "</li>");
-				// Your GCM push server needs to know the regID before it can push to this device
-				// here is where you might want to send it the regID for later use.
-				console.log("regID = " + e.regid);
-			}
-		break;
-	
-		case 'message':
-			// if this flag is set, this notification happened while we were in the foreground.
-			// you might want to play a sound to get the user's attention, throw up a dialog, etc.
-			if ( e.foreground )
-			{
-				$("#app-status-ul").append('<li>--INLINE NOTIFICATION--' + '</li>');
-	
-				// on Android soundname is outside the payload.
-				// On Amazon FireOS all custom attributes are contained within payload
-				var soundfile = e.soundname || e.payload.sound;
-				// if the notification contains a soundname, play it.
-				var my_media = new Media("/android_asset/www/"+ soundfile);
-				my_media.play();
-			}
-			else
-			{  // otherwise we were launched because the user touched a notification in the notification tray.
-				if ( e.coldstart )
-				{
-					$("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
-				}
-				else
-				{
-					$("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
-				}
-			}
-	
-		   $("#app-status-ul").append('<li>MESSAGE -> MSG: ' + e.payload.message + '</li>');
-	           //Only works for GCM
-		   $("#app-status-ul").append('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>');
-		   //Only works on Amazon Fire OS
-		   $status.append('<li>MESSAGE -> TIME: ' + e.payload.timeStamp + '</li>');
-		break;
-	
-		case 'error':
-			$("#app-status-ul").append('<li>ERROR -> MSG:' + e.msg + '</li>');
-		break;
-	
-		default:
-			$("#app-status-ul").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
-		break;
-	  }
-	}
 	
 }

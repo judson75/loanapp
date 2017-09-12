@@ -459,13 +459,26 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 	border-right: 1px solid #ccc;
 	border-left: 1px solid  #e1e1e1;
 	color: #808080;
-	padding: 20px;
+	line-height: 1.3;
 }
 
 .toolbar i {
 	font-size: 34px;
 }
 
+.refresh-tool {
+	width: 20%; text-align: center;
+}
+.help-tool {
+	width: 60%; text-align: center;
+}
+
+.help-tool i {
+	vertical-align: sub;
+}
+.settings-tool {
+	width: 20%; text-align: center;
+}
 
 .home-btn {
 	font-size: 30px;

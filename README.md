@@ -3,27 +3,39 @@
 > Debstruction is the working title??? 
 > LoanZapper.com--
   
-  For a more extensive Framework7 sample, see the [one included in their Github project](https://github.com/nolimits4web/Framework7/tree/master/dist)
-  or the [demo apps on their website](http://www.idangero.us/framework7/apps/#.VpQCc5MrKjQ).
+  This repo is still in development.   
+
+
+## To-Do
     
-  Also, for an intro to Framework7, check out [this post on the PhoneGap blog](http://phonegap.com/blog/2015/11/30/framework7/).   
+### Splash Screen
 
+    Code added, not working in dev, test in production
 
-## Usage
+### Push Tokens
+
+    Test sending in production
+
+### Upgrade Account
+
+    Finish upgrade page
+    Tie in PayPal
+    Test - Listener needs to upgrade max_accounts
+    Listener on inappbrowser to close
     
-### PhoneGap CLI
-
-    $ phonegap create my-app --template phonegap-template-framework7
-
-### Cordova CLI
-
-    $ cordova create my-app --template phonegap-template-framework7
+### She Settings 
     
-### Desktop
+    Re-test
 
-In your browser, open the file:
+### Coupon
 
-    /www/index.html
+    Test
+
+### Register Account
+
+    Finish
+
+www.myloanzapper.com
 
 
   
