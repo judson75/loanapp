@@ -28,7 +28,7 @@ var mainView = app.addView('.view-main', {
 
 //deleteStorage('dllogin');
 //setStorage('user_id', 1);
-setStorage('max_accounts', 1);
+//setStorage('max_accounts', 1);
 
 //console.log("LOGGED IN: " + isLoggedIn());
 if(isLoggedIn() !== true) {
@@ -1110,8 +1110,6 @@ function buildDashboard() {
 	//alert(push);
 	
 	//Push Notify
-	
-	/*
 	var push = PushNotification.init({
 		"android": {
 			"senderID": "1058444389453"
@@ -1126,11 +1124,24 @@ function buildDashboard() {
 	});
 	
 	push.on('registration', function(data) {   
-		alert(data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
-		//document.getElementById("gcm_id").value= data.registrationId; //showing registration id in our app. If it shows our registration process is suscess
-		//$("#gcm_id").val(data.registrationId);  if you are using jquery
+		alert("reg Data: " + data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
+		setStorage('registrationId', data.registrationId);
 	});
-*/
+	
+	push.on('error', function(e) {
+		alert("push error = " + e.message);
+	});
+
+	push.on('notification', function(data) {
+		alert('notification event');
+		navigator.notification.alert(
+			data.message,         // message
+			null,                 // callback
+			data.title,           // title
+			'Ok'                  // buttonName
+		);
+	});
+
 	/*
 	push.on('registration', function(data) {
 		alert('registration event: ' + data.registrationId);
