@@ -1,6 +1,7 @@
-# Debtstruction Application 
+# LoanZapper Application 
 
 > Debstruction is the working title??? 
+> LoanZapper.com--
   
   For a more extensive Framework7 sample, see the [one included in their Github project](https://github.com/nolimits4web/Framework7/tree/master/dist)
   or the [demo apps on their website](http://www.idangero.us/framework7/apps/#.VpQCc5MrKjQ).
