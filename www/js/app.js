@@ -1142,7 +1142,7 @@ function buildDashboard() {
 	
 	//alert(push);
 	
-
+	alert("REG ID: " + setStorage('registrationId');
 	
 
 	/*
