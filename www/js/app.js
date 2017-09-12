@@ -7,6 +7,7 @@ var $$ = Dom7;
 
 var serviceURL = 'https://okmlshub.com/judson/loan/api/v1/';
 var storage = window.localStorage;
+var PushNotification;
 /*
 var push = PushNotification.init({
 	"android": {
@@ -44,6 +45,38 @@ else {
 $$(document).on('deviceready', function() {
     console.log("Device is ready!");
     //alert("READY");
+	//Push Notify
+	var push = PushNotification.init({
+		"android": {
+			"senderID": "1058444389453"
+		},
+		"browser": {},
+		"ios": {
+			"sound": true,
+			"vibration": true,
+			"badge": true
+		},
+		"windows": {}
+	});
+	
+	push.on('registration', function(data) {   
+		alert("reg Data: " + data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
+		setStorage('registrationId', data.registrationId);
+	});
+	
+	push.on('error', function(e) {
+		alert("push error = " + e.message);
+	});
+
+	push.on('notification', function(data) {
+		alert('notification event');
+		navigator.notification.alert(
+			data.message,         // message
+			null,                 // callback
+			data.title,           // title
+			'Ok'                  // buttonName
+		);
+	});
 })
 
 $$(document).on('pageReinit', function (e) {
@@ -1109,38 +1142,8 @@ function buildDashboard() {
 	
 	//alert(push);
 	
-	//Push Notify
-	var push = PushNotification.init({
-		"android": {
-			"senderID": "1058444389453"
-		},
-		"browser": {},
-		"ios": {
-			"sound": true,
-			"vibration": true,
-			"badge": true
-		},
-		"windows": {}
-	});
-	
-	push.on('registration', function(data) {   
-		alert("reg Data: " + data.registrationId);  //this function give registration id from the GCM server if you dont want to see it please comment it
-		setStorage('registrationId', data.registrationId);
-	});
-	
-	push.on('error', function(e) {
-		alert("push error = " + e.message);
-	});
 
-	push.on('notification', function(data) {
-		alert('notification event');
-		navigator.notification.alert(
-			data.message,         // message
-			null,                 // callback
-			data.title,           // title
-			'Ok'                  // buttonName
-		);
-	});
+	
 
 	/*
 	push.on('registration', function(data) {
@@ -1446,7 +1449,7 @@ function buildDashboard() {
 			});
 		},
 		error : function(request,error) {
-			alert("Request: "+JSON.stringify(request));
+			alert("Dashboard Request (error): " + JSON.stringify(request));
 			//$.mobile.loading('hide');
 			$('.page-overlay').fadeOut('fast', function() {
 				$(this).remove();
