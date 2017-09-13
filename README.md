@@ -23,7 +23,7 @@
     Test - Listener needs to upgrade max_accounts
     Listener on inappbrowser to close
     
-### She Settings 
+### Settings 
     
     Re-test
 

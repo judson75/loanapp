@@ -5,7 +5,7 @@ var app = new Framework7();
 // If we need to use custom DOM library, let's save it to $$ variable:
 var $$ = Dom7;
 
-var serviceURL = 'https://okmlshub.com/judson/loan/api/v1/';
+var serviceURL = 'http://myloanzapper.com/api/v1/';
 var storage = window.localStorage;
 
 // Add view
@@ -1244,7 +1244,7 @@ function buildDashboard() {
 			
 	  	},
 		success : function(data) {              
-			/*console.log('Dashboard Data: ' + data);*/
+			console.log('Dashboard Data: ' + data);
 			//Register push Token
 			if(getStorage('registrationId') !== '') {
 				registerPushToken();
@@ -1372,7 +1372,7 @@ function buildDashboard() {
 			}
 			dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Rate:</span> <b>' + obj.data.acct.int_rate + '%</b></div>';
 			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
-				$('#int-rate-input').val(obj.data.acct.int_saved);
+				$('#int-rate-saved').val(obj.data.acct.int_saved);
 				$('#saved-percent-input').val(obj.data.acct.saved_percent);
 				dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Saved:</span> <b>$' + obj.data.acct.int_saved + '</b></div>';
 			}
