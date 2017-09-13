@@ -66,6 +66,18 @@ $$(document).on('deviceready', function() {
 			'Ok'                  // buttonName
 		);
 	});
+	
+	AppRate.preferences.storeAppURL = {
+	  ios: '<my_app_id>',
+	  android: 'market://details?id=com.loanzapper.app',
+	  windows: 'ms-windows-store://pdp/?ProductId=<the apps Store ID>',
+	  blackberry: 'appworld://content/[App Id]/',
+	  windows8: 'ms-windows-store:Review?name=<the Package Family Name of the application>'
+	};
+	
+	AppRate.preferences.displayAppName = 'LoanZapper';
+	AppRate.preferences.usesUntilPrompt = 3;
+	AppRate.promptForRating(false);
 })
 
 $$(document).on('pageReinit', function (e) {
@@ -548,7 +560,7 @@ $(document).on('click', '.calcSavingsBtn', function() {
 	var start_date = $('input[name="start_date"]').val();
 	var current_month = $('input[name="current_month"]').val();
 	var ppmnt = $('input[name="addl_pmt"]').val();
-	
+	var due_date = $('#due-date-input').val();
 	if(ppmnt === '') {
 		$('#esinput').addClass('hasError');
 		$('#esinput').after('<div class="helper error">Please enter an amount</div>');
@@ -577,13 +589,15 @@ $(document).on('click', '.calcSavingsBtn', function() {
 			'years': years, 
 			'start_date': start_date, 
 			'current_month': current_month, 
-			'ppmnt': ppmnt
+			'ppmnt': ppmnt,
+			'due_date': due_date
 		},
 		dataType: 'html',
 		beforeSend: function() {
 			loading('show');
 	  	},
 		success : function(data) {
+			console.log("DATA: " + data);
 			var obj = $.parseJSON(data);
 			if(obj.code === 1) {
 				var html = '<div id="sav-title">You will save</div>';
@@ -603,6 +617,9 @@ $(document).on('click', '.calcSavingsBtn', function() {
 	});	
 });
 
+$(document).on('click', '#app-rate', function() {
+	AppRate.promptForRating();
+});
 
 $(document).on('click', '#account-container li.sub-account-link', function() {
 	$('#account-container').removeClass('open');
@@ -1472,6 +1489,8 @@ function buildDashboard() {
 			dashboard_html += '</div>';
 			dashboard_html += '</div>';
 			dashboard_html += '<div class="clr"></div>';
+			
+			//dashboard_html += '<div id="app-rate"><img src="lib/icon/rate_app.png"></div>';
 			//$('#payments-container').html(payments_html);
 			//$.mobile.loading('hide');
 			$('#dashboard-container').html(dashboard_html);
@@ -1495,6 +1514,8 @@ function buildDashboard() {
 			$('.page-overlay').fadeOut('fast', function() {
 				$(this).remove();
 			});
+			
+			
 		},
 		error : function(request,error) {
 			alert("Dashboard Request (error): " + JSON.stringify(request));

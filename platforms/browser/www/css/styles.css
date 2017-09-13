@@ -710,6 +710,15 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 	padding: 0 15px 35px 15px;
 }
 
+#app-rate {
+	text-align: center;
+}
+
+#app-rate img {
+	max-width: 100%;
+	height: auto;
+}
+
 #db-left {
 	width: 100%;
 	margin: 15px 0 10px 0;
@@ -1151,6 +1160,11 @@ td.yearly-block-head {
 		
 	dt span.value {
 		font-size: 14px;	
+	}
+	
+	#app-rate img {
+		/*max-width: 250px;
+		height: auto;*/
 	}
 
 }
