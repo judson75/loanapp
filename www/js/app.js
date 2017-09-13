@@ -128,6 +128,7 @@ $$(document).on('pageInit', function (e) {
 					$('#amort-container').html(obj.data, function() {
 						//scroll to current month.
 						if ($('.current-month').length) {
+							console.log("SCROLL");
 							$('html,body').animate({
 							  scrollTop: $('.current-month').offset().top
 							}, 1000);
@@ -527,6 +528,16 @@ $(document).on('click', '.showsSavingsBtn', function() {
 	}
 });
 
+$(document).on('focus', '#addl_pmt', function() {
+	//scroll to current month.
+	//console.log("SCROLL");
+	//$$('.page-content').animate({
+	 // scrollTop: $('#addl_pmt').offset().top
+	//}, 1000);
+	//console.log($('#addl_pmt').offset().top);
+	$$('html, body').scrollTop($('#addl_pmt').offset().top, 500);
+});
+
 $(document).on('click', '.calcSavingsBtn', function() {
 	var error_count = 0;
 	$('.helper').remove();
@@ -537,6 +548,7 @@ $(document).on('click', '.calcSavingsBtn', function() {
 	var start_date = $('input[name="start_date"]').val();
 	var current_month = $('input[name="current_month"]').val();
 	var ppmnt = $('input[name="addl_pmt"]').val();
+	
 	if(ppmnt === '') {
 		$('#esinput').addClass('hasError');
 		$('#esinput').after('<div class="helper error">Please enter an amount</div>');
@@ -1362,12 +1374,12 @@ function buildDashboard() {
 				account_count++;
 			});
 			setStorage('account_count', account_count);
-		//	if(getStorage('account_count') >= getStorage('max_accounts')) {
-		//		dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
-		//	}
-		//	else {
+			if(getStorage('account_count') >= getStorage('max_accounts')) {
+				dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
+			}
+			else {
 				dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
-		//	}
+			}
 			dashboard_html += '</ul>';
 			dashboard_html += '</div>';
 			dashboard_html += '</div>';

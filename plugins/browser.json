@@ -22,7 +22,17 @@
         },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "com.debtly.loan"
+        },
+        "cordova-plugin-apprate": {
+            "PACKAGE_NAME": "com.loanzapper.app"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-dialogs": {
+            "PACKAGE_NAME": "com.loanzapper.app"
+        },
+        "cordova-plugin-globalization": {
+            "PACKAGE_NAME": "com.loanzapper.app"
+        }
+    }
 }
