@@ -188,7 +188,7 @@ $$(document).on('pageInit', function (e) {
 	
 	if (page.name === 'coupon') {
 		$('#payment-amt').html(getStorage('payment-amt'));
-		$('#acct-id').html(getStorage('acct-id'));
+		$('#acct-id').html(getStorage('acct-number'));
 		
 	}
 	
@@ -320,9 +320,9 @@ $(document).mouseup(function(e) {
     e.stopPropagation();
    
     if (!container.is(e.target) && container.has(e.target).length === 0 && !$('.switchAccountBtn').is(e.target) && $('.switchAccountBtn').has(e.target).length === 0) {
-      //  $('#account-container').removeClass('open');
-		$('.switchAccountBtn').click();
-        
+        $('#account-container').removeClass('open');
+		//$('.switchAccountBtn').click();
+        //$('#account-container').hide();
     }
     
     var container2 = $('.app-modal');
@@ -411,7 +411,7 @@ $(document).on('click', '.refreshBtn', function() {
 });
 
 $(document).on('click', '.upgradeAcctBtn', function() {
-	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id'), '_blank', 'location=yes');
+	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts', '_blank', 'location=yes');
 	ref.addEventListener('loadstop', function() {
 		//this is for the page displayed...
 		ref.insertCSS({file: "/css/styles.css"});
@@ -438,6 +438,36 @@ $(document).on('click', '.makePaymentBtn', function() {
 
 $(document).on('click', '.saveAcctBtn', function() {
 	saveAcct();
+});
+
+$(document).on('click', '#acctSetupFrm input[name="account_title"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="account_title"]').after('<div class="block-tooltip">Enter a title that will be easy to recognize. EG. <b>Home Loan</b> or <b>Wells Fargo Home Mortgage</b>.</div>');
+});
+
+$(document).on('click', '#acctSetupFrm input[name="account_number"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="account_number"]').after('<div class="block-tooltip">Enter your account number. This will help you further identify this account.</div>');
+});
+
+$(document).on('click', '#acctSetupFrm input[name="loan_amount"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="loan_amount"]').after('<div class="block-tooltip">Enter the loan amount here. Please enter the full amount, <u>including cents</u>. <b><u>Dollar signs, commas and letters are not permitted</u>. EG. <b>123456.78</b></div>');
+});
+
+$(document).on('click', '#acctSetupFrm input[name="orig_date"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="orig_date"]').after('<div class="block-tooltip">Enter the date of your first payment.</div>');
+});
+
+$(document).on('click', '#acctSetupFrm input[name="loan_term"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="loan_term"]').after('<div class="block-tooltip">Enter length of the loan in months.</div>');
+});
+
+$(document).on('click', '#acctSetupFrm input[name="int_rate"]', function() {
+	$('.block-tooltip').remove();
+	$('#acctSetupFrm input[name="int_rate"]').after('<div class="block-tooltip">Enter your interest rate.</div>');
 });
 
 $(document).on('click', '.editPaymentBtn', function() {
@@ -559,6 +589,16 @@ $(document).on('click', '#account-container li.sub-account-link', function() {
 	$('#acct-id-input').val(id);
 	setStorage('acct-id', id);
 	buildDashboard();
+});
+
+$(document).on('click', 'input[name="payment_type"]', function() {
+	$('input[name="payment_type"]').parent('div').find('.helper-info').remove();
+	if($('input[name="payment_type"]:checked').val() == 'principal') {
+		$('input[name="payment_type"]').parent('div').append('<div class="helper-info"><i class="typcn typcn-info"></i> <h3>NOTICE</h3><br>Before making a principal only payment, you must make your regulary scheduled payment.</div>');
+	}
+	else {
+
+	}
 });
 
 function loading(method) {
@@ -785,11 +825,10 @@ $(document).on('click', '.savePaymentBtn', function() {
 				if(payment_type == 'principal' && status != 1) {
 					//location.href = site_url + 'coupon?id=' + id + '&amt=' + payment_amount + '&usr=' + user_id;
 					setStorage('payment-amt', payment_amount);
-					//setStorage('acct', account_count);
-					//setStorage('acct-id')
-					//getStorage('acct-id')
+					setStorage('acct-number', $('#account-number-input').val());
 					mainView.router.loadPage('coupon.html');
-					
+					loading('hide');
+					modalClose();
 				}
 				else {
 					location.reload();
@@ -1307,19 +1346,19 @@ function buildDashboard() {
 			dashboard_html += '<div id="account-container">';
 			dashboard_html += '<ul>';
 			//Sub accounts
-			var account_count = 0
+			var account_count = 1; //We are counting the main account..
 			$.each( obj.data.sub_accounts, function( index, value ){
 				/*console.log(obj.data.sub_accounts[index].account_title);*/
 				dashboard_html += '<li class="sub-account-link" data-id="'  + obj.data.sub_accounts[index].id + '">' + obj.data.sub_accounts[index].account_title + ' (Acct# ' + obj.data.sub_accounts[index].acct_number + ')</li>';
 				account_count++;
 			});
 			setStorage('account_count', account_count);
-			if(getStorage('account_count') >= getStorage('max_accounts')) {
-				dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
-			}
-			else {
+		//	if(getStorage('account_count') >= getStorage('max_accounts')) {
+		//		dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
+		//	}
+		//	else {
 				dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
-			}
+		//	}
 			dashboard_html += '</ul>';
 			dashboard_html += '</div>';
 			dashboard_html += '</div>';
@@ -1343,7 +1382,7 @@ function buildDashboard() {
 			//$('#loan-overview').html(loan_html);
 			dashboard_html += '</div>';
 			dashboard_html += '<div id="make-payment-container">';
-			dashboard_html += '<button class="btn btn-primary makePaymentBtn">Make Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a>';
+			dashboard_html += '<button class="btn btn-primary makePaymentBtn">Record Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a>';
 			dashboard_html += '</div>';
 			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
 				var int_saved = $('input[name="int_saved"]').val();

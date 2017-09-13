@@ -405,6 +405,63 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 	color: #fff !important;
 }
 
+.block-tooltip {
+	background-color: #BDE5F8;
+	display: block;
+	width: auto;
+	vertical-align: top;
+	padding: 15px;
+	/*position: absolute;
+	margin-left: 20px;*/
+	margin-top: 5px;
+	font-size: 12px;
+	font-family: 'Open Sans', sans-serif;
+	/*min-height: 80px;
+	top: 50%;*/
+	/*margin-top: -15px;
+	transform: translate(0, -50%);*/
+
+}
+
+.block-tooltip:before {
+	/*
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid black;
+	*/
+}
+
+.error {
+	color: #d6003c;
+}
+
+.helper-info {
+	background-color: #BDE5F8;
+	display: inline-block;
+	vertical-align: top;
+	padding: 10px;
+	font-size: 12px;
+	font-family: 'Open Sans', sans-serif;
+	margin: 10px 0;
+	line-height: 1.3em;
+}
+
+.helper-info h3 {
+	display: inline-block;
+	line-height: 1em;
+	margin: 0;
+}
+
+.helper-info i {
+    font-size: 34px;
+    vertical-align: middle;
+    line-height: 1em;
+    float: left;
+    margin-right: 10px;
+}
+
 .alert {
 	padding: 10px;
 	font-size: 16px;
@@ -951,6 +1008,10 @@ input[type=radio]:checked + label:before { letter-spacing: 5px; } /* allow space
 	right: 5px;
 }
 
+.payment-btns i {
+	margin-left: 6px;
+}
+
 .payNot {
 	font-size: 34px;
 	cursor: pointer;
@@ -1049,6 +1110,34 @@ td.yearly-block-head {
 .yearly-output {
 	background: #BDE5F8 !important;
 }
+
+#coupon-outline {
+	border: 5px dashed #000;
+	padding: 20px;
+	text-align: center;
+	max-width: 500px;
+	margin: 20px auto;
+}
+
+.coupon1 {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.coupon2 {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.coupon3 {
+	font-size: 12px;
+	text-align: left;
+	margin-top: 10px;
+	
+}
+
+.coupon-notes { border: 2px solid #000; height: 100px; }
+.coupon-footer { font-size: 9px; text-align: right; }
 
 @media (max-width: 480px) {
 	
