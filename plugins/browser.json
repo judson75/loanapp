@@ -25,6 +25,9 @@
         },
         "cordova-plugin-apprate": {
             "PACKAGE_NAME": "com.loanzapper.app"
+        },
+        "cordova-plugin-themeablebrowser": {
+            "PACKAGE_NAME": "com.loanzapper.app"
         }
     },
     "dependent_plugins": {

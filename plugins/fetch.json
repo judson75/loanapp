@@ -64,5 +64,13 @@
         },
         "is_top_level": false,
         "variables": {}
+    },
+    "cordova-plugin-themeablebrowser": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-themeablebrowser"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

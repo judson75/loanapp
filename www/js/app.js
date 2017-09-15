@@ -13,7 +13,7 @@ var mainView = app.addView('.view-main', {
     dynamicNavbar: true
 });
 
-//deleteStorage('dllogin');
+deleteStorage('dllogin');
 //setStorage('user_id', 1);
 //setStorage('max_accounts', 1);
 
@@ -349,11 +349,9 @@ $(document).mouseup(function(e) {
     
     var container2 = $('.app-modal');
 	if ((!$('.app-modal').is(e.target) && $('.app-modal').has(e.target).length === 0) ||  ($('.close-modal').is(e.target) || $('.modal-close').is(e.target) ) ) {
-		console.log("CLOSED CLICKED");
+		//console.log("CLOSED CLICKED");
         modalClose();
     }
-
-
 });
 
 $(document).on('click', '.signupBtn', function() {
@@ -379,9 +377,14 @@ $(document).on('click', '.signupBtn', function() {
 		$('input[name="register_email"]').after('<div class="helper error">Please enter email address</div>');
 		error_count++;
 	}
+	else if(!validateEmail(email)) {
+		$('input[name="register_email"]').parent('div').addClass('hasError');
+		$('input[name="register_email"]').after('<div class="helper error">Please enter a valid email address</div>');
+		error_count++;
+	}
 	if(password === '') {
-		$('input[name="register_password"]').parent('div').addClass('hasError');
-		$('input[name="register_password"]').after('<div class="helper error">Please enter password</div>');
+		$('input[name="password"]').parent('div').addClass('hasError');
+		$('input[name="password"]').after('<div class="helper error">Please enter password</div>');
 		error_count++;
 	}
 	if(error_count > 0) {
@@ -499,6 +502,7 @@ $(document).on('click', '.refreshBtn', function() {
 });
 
 $(document).on('click', '.upgradeAcctBtn', function() {
+	/*
 	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts', '_blank', 'location=yes');
 	ref.addEventListener('loadstop', function() {
 		//this is for the page displayed...
@@ -506,6 +510,65 @@ $(document).on('click', '.upgradeAcctBtn', function() {
 	});
 
 	ref.show();
+	*/
+	var str = '?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts';
+	cordova.ThemeableBrowser.open('http://myloanzapper.com/upgrade?ui=' + window.btoa(unescape(encodeURIComponent(str))) + '', '_blank', {
+		statusbar: {
+			color: '#ffffffff'
+		},
+		toolbar: {
+			height: 44,
+			color: '#f0f0f0ff'
+		},
+		title: {
+			color: '#003264ff',
+			showPageTitle: true
+		},
+		backButton: {
+			image: 'back',
+			imagePressed: 'back_pressed',
+			align: 'left',
+			event: 'backPressed'
+		},
+		forwardButton: {
+			image: 'forward',
+			imagePressed: 'forward_pressed',
+			align: 'left',
+			event: 'forwardPressed'
+		},
+		closeButton: {
+			image: 'close',
+			imagePressed: 'close_pressed',
+			align: 'left',
+			event: 'closePressed'
+		},
+		customButtons: [
+			{
+				image: 'share',
+				imagePressed: 'share_pressed',
+				align: 'right',
+				event: 'sharePressed'
+			}
+		],
+		menu: {
+			image: 'menu',
+			imagePressed: 'menu_pressed',
+			title: 'Test',
+			cancel: 'Cancel',
+			align: 'right',
+			items: [
+				{
+					event: 'helloPressed',
+					label: 'Hello World!'
+				},
+				{
+					event: 'testPressed',
+					label: 'Test!'
+				}
+			]
+		},
+		backButtonCanClose: true
+	});
 });
 
 
@@ -718,7 +781,7 @@ function loading(method) {
 
 function isLoggedIn() {
 	//var logged_in = getStorage('dllogin');
-	console.log(getStorage('user_id'));
+	//console.log(getStorage('user_id'));
 	if(getStorage('dllogin') !== '' && getStorage('dllogin') !== null && getStorage('user_id') != null) {
 		return true;
 	}
@@ -1584,7 +1647,7 @@ function buildDashboard() {
 			
 		},
 		error : function(request,error) {
-			alert("Dashboard Request (error): " + JSON.stringify(request));
+			//alert("Dashboard Request (error): " + JSON.stringify(request));
 			//$.mobile.loading('hide');
 			$('.page-overlay').fadeOut('fast', function() {
 				$(this).remove();
@@ -1593,4 +1656,9 @@ function buildDashboard() {
 	});
 	
 	
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
 }
