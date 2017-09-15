@@ -501,7 +501,7 @@ $(document).on('click', '.refreshBtn', function() {
 	location.reload(); 
 });
 
-$(document).on('click', '.upgradeAcctBtn', function() {
+$(document).on('click', '.upgradeAcctBtn, .upgradeAcctBtn2', function() {
 	/*
 	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts', '_blank', 'location=yes');
 	ref.addEventListener('loadstop', function() {
@@ -511,7 +511,7 @@ $(document).on('click', '.upgradeAcctBtn', function() {
 
 	ref.show();
 	*/
-	var str = '?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts';
+	var str = getStorage('user_id') + '::You have reached the maximum accounts';
 	cordova.ThemeableBrowser.open('http://myloanzapper.com/upgrade?ui=' + window.btoa(unescape(encodeURIComponent(str))) + '', '_blank', {
 		statusbar: {
 			color: '#ffffffff'
