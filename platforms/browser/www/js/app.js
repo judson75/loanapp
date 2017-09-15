@@ -1642,7 +1642,7 @@ function buildDashboard() {
 				}
 			}
 			else {
-				dashboard_html += '<h2 style="text-align: center; margin-top: 30px;">You do not have any accounts setup</h2><span class="newAcctBtn btn btn-primary" style="text-transform: uppercase;">Click here to get started</span>';
+				dashboard_html += '<center><img src="lib/icon/icon-2.png" style="margin: 20px auto 0;"></center><h2 style="text-align: center; margin-top: 30px;">You do not have any accounts setup</h2><p style="text-align: center;">If you would like to get started saving money, click the button below!</p><span class="newAcctBtn btn btn-primary" style="text-transform: uppercase;">Click here to get started</span>';
 				$('#dashboard-container').html(dashboard_html);
 			}
 			$('.page-overlay').fadeOut('fast', function() {
