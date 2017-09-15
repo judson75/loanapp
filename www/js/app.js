@@ -572,7 +572,7 @@ $(document).on('click', '.upgradeAcctBtn', function() {
 });
 
 
-$(document).on('click', '.addAcctBtn', function() {
+$(document).on('click', '.addAcctBtn, .newAcctBtn', function() {
 	showAccountSetupScreen(null);
 	$('.switchAccountBtn').click();
 });
@@ -1418,228 +1418,233 @@ function buildDashboard() {
 			}
 			var obj = $.parseJSON(data);
 			$('#dashboard-container').html('');
-			//obj.data.id;
-			//console.log(obj.data.acct.id);
-			$('#acct-id-input').val(obj.data.acct.id);
-			//alerts 
-			if(obj.data.unread_alert_count != '' && obj.data.unread_alert_count > 0) {
-				var alert_count = (obj.data.unread_alert_count > 9) ? '9+' : obj.data.unread_alert_count ;
-				$('.halerts i').after('<span class="alert-count">' + alert_count + '</span>');
-			}
-			var alerts = '';
-			if(obj.data.alerts != '' && obj.data.alerts != null) {
-				alerts += '<ul>';
-				$.each( obj.data.alerts, function( index, value ) {
-					/*console.log(obj.data.alerts[index].id);*/
-					alerts += '<li>';
-					var icon = '<i class="typcn typcn-bell"></i>';
-					if(obj.data.alerts[index].type == 'payment') {
-						icon = '<i class="fa fa-usd"></i>';
-					}
-					alerts += '<div id="alert-tr-'  + obj.data.alerts[index].id + '" class="alert-div';
-					if(obj.data.alerts[index].alert_read == 1) {
-						alerts += ' read';
-					}
-					alerts += '"><div class="alert-icon">' + icon + '</div>';
-					alerts += '<div class="alert-text"><h4 style="margin: 0; line-height: 1em;">'  + obj.data.alerts[index].alert_text + '<h4><small>'  + obj.data.alerts[index].time_ago + '</small></div></div>';
-					alerts += '<div class="clr"></div>';
-					alerts += '</li>';
-				});
-				alerts += '</ul>';
-			}
-			$('.alerts-container').html(alerts);
-			//Loan Overview
 			var dashboard_html = '';
-			dashboard_html += '<div id="db-left"><div id="loan-overview">';
-			$('#start-date-input').val(obj.data.acct.orig_date);
-			$('#account-title-input').val(obj.data.acct.account_title);
-			$('#account-number-input').val(obj.data.acct.acct_number);
-			$('#loan-term-input').val(obj.data.acct.loan_term);
-			$('#due-date-input').val(obj.data.acct.due_date);
-			$('#int-saved-input').val(obj.data.acct.int_saved);
+			if(obj.data.acct != '' && obj.data.acct != null) {
+				//obj.data.id;
+				//console.log(obj.data.acct.id);
+				$('#acct-id-input').val(obj.data.acct.id);
+				//alerts 
+				if(obj.data.unread_alert_count != '' && obj.data.unread_alert_count > 0) {
+					var alert_count = (obj.data.unread_alert_count > 9) ? '9+' : obj.data.unread_alert_count ;
+					$('.halerts i').after('<span class="alert-count">' + alert_count + '</span>');
+				}
+				var alerts = '';
+				if(obj.data.alerts != '' && obj.data.alerts != null) {
+					alerts += '<ul>';
+					$.each( obj.data.alerts, function( index, value ) {
+						/*console.log(obj.data.alerts[index].id);*/
+						alerts += '<li>';
+						var icon = '<i class="typcn typcn-bell"></i>';
+						if(obj.data.alerts[index].type == 'payment') {
+							icon = '<i class="fa fa-usd"></i>';
+						}
+						alerts += '<div id="alert-tr-'  + obj.data.alerts[index].id + '" class="alert-div';
+						if(obj.data.alerts[index].alert_read == 1) {
+							alerts += ' read';
+						}
+						alerts += '"><div class="alert-icon">' + icon + '</div>';
+						alerts += '<div class="alert-text"><h4 style="margin: 0; line-height: 1em;">'  + obj.data.alerts[index].alert_text + '<h4><small>'  + obj.data.alerts[index].time_ago + '</small></div></div>';
+						alerts += '<div class="clr"></div>';
+						alerts += '</li>';
+					});
+					alerts += '</ul>';
+				}
+				$('.alerts-container').html(alerts);
+				//Loan Overview
+				dashboard_html += '<div id="db-left"><div id="loan-overview">';
+				$('#start-date-input').val(obj.data.acct.orig_date);
+				$('#account-title-input').val(obj.data.acct.account_title);
+				$('#account-number-input').val(obj.data.acct.acct_number);
+				$('#loan-term-input').val(obj.data.acct.loan_term);
+				$('#due-date-input').val(obj.data.acct.due_date);
+				$('#int-saved-input').val(obj.data.acct.int_saved);
 
-			//format dates
-			var orig_date = obj.data.acct.orig_date.replace(/-/g, '/');
-			var today = new Date(orig_date);
-			var dd = today.getDate();
-			var mm = today.getMonth()+1; //January is 0!
-			var yyyy = today.getFullYear();
-			if(dd<10) {
-				dd = '0'+dd
-			} 
-
-			if(mm<10) {
-				mm = '0'+mm
-			} 
-			orig_date = mm + '/' + dd + '/' + yyyy;
-			var payoff_date = '';
-			if(obj.data.acct.payoff_date != null && obj.data.acct.payoff_date != '') {
-				var payoff_date = obj.data.acct.payoff_date.replace(/-/g, '/');
-				var today = new Date(payoff_date);
+				//format dates
+				var orig_date = obj.data.acct.orig_date.replace(/-/g, '/');
+				var today = new Date(orig_date);
 				var dd = today.getDate();
 				var mm = today.getMonth()+1; //January is 0!
 				var yyyy = today.getFullYear();
 				if(dd<10) {
 					dd = '0'+dd
 				} 
-	
-				if(mm<10) {
-					mm = '0'+mm
-				} 
-				payoff_date = mm + '/' + dd + '/' + yyyy;
-			}
-			var adj_payoff_date = '';
-			if(obj.data.acct.adj_payoff_date != null && obj.data.acct.adj_payoff_date != '') {
-				var adj_payoff_date = obj.data.acct.adj_payoff_date.replace(/-/g, '/');
-				var today = new Date(adj_payoff_date);
-				var dd = today.getDate();
-				var mm = today.getMonth()+1; //January is 0!
-				var yyyy = today.getFullYear();
-				if(dd<10) {
-					dd = '0'+dd
-				} 
-	
-				if(mm<10) {
-					mm = '0'+mm
-				} 
-				adj_payoff_date = mm + '/' + dd + '/' + yyyy;
-			}
-			/*console.log(obj.data.acct.int_rate);*/
-			$('#int-rate').val(obj.data.acct.int_rate);
-			$('#loan-amount-input').val(obj.data.acct.loan_amount);
-			$('#loan-years-input').val((obj.data.acct.loan_term/12));
-			dashboard_html += '<div id="ov-switch">';
-			dashboard_html += '<button class="btn btn-default btn-sm switchAccountBtn">Switch Account <i class="typcn typcn-arrow-sorted-down"></i></button>';
-			dashboard_html += '<div id="account-container">';
-			dashboard_html += '<ul>';
-			//Sub accounts
-			var account_count = 1; //We are counting the main account..
-			$.each( obj.data.sub_accounts, function( index, value ){
-				/*console.log(obj.data.sub_accounts[index].account_title);*/
-				dashboard_html += '<li class="sub-account-link" data-id="'  + obj.data.sub_accounts[index].id + '">' + obj.data.sub_accounts[index].account_title + ' (Acct# ' + obj.data.sub_accounts[index].acct_number + ')</li>';
-				account_count++;
-			});
-			setStorage('account_count', account_count);
-			if(getStorage('account_count') >= getStorage('max_accounts')) {
-				dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
-			}
-			else {
-				dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
-			}
-			dashboard_html += '</ul>';
-			dashboard_html += '</div>';
-			dashboard_html += '</div>';
-			dashboard_html += '<div class="ov-acct"><span class="ov-title">Acct:</span><small>#' + obj.data.acct.acct_number + '</small><br>' + obj.data.acct.account_title + '</div>';
-			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Amt:</span> <b>$' + obj.data.acct.loan_amount + '</b></div>';
-			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Balance:</span> <b>$' + obj.data.acct.loan_balance + '</b></div>';
-			dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Orig. Date:</span> <b>' + orig_date + '</b></div>';
-			dashboard_html += '<div class="ov-div"><span class="ov-caption">Orig. Payoff Date:</span> <b>' + payoff_date + '</b></div>';
-			if(adj_payoff_date != '') {
-				dashboard_html += '<div class="ov-div"><span class="ov-caption">Est. Payoff Date:</span> <b>' + adj_payoff_date + '</b></div>';
-			}
-			dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Rate:</span> <b>' + obj.data.acct.int_rate + '%</b></div>';
-			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
-				$('#int-rate-saved').val(obj.data.acct.int_saved);
-				$('#saved-percent-input').val(obj.data.acct.saved_percent);
-				dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Saved:</span> <b>$' + obj.data.acct.int_saved + '</b></div>';
-			}
-			
-			dashboard_html += '<div id="acctEdit"><i class="fa fa-trash-o deleteAcctBtn" data-id="' + obj.data.acct.id + '"></i> <i class="fa fa-pencil-square-o editAcctBtn" data-id="' + obj.data.acct.id + '"></i></div>';
-			
-			//$('#loan-overview').html(loan_html);
-			dashboard_html += '</div>';
-			dashboard_html += '<div id="make-payment-container">';
-			dashboard_html += '<button class="btn btn-primary makePaymentBtn">Record Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a>';
-			dashboard_html += '</div>';
-			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
-				var int_saved = $('input[name="int_saved"]').val();
-				var saved_percent = $('input[name="saved_percent"]').val();
-				dashboard_html += '<div class="sidebar" id="int-saved-cont"><h4>Money Saved</h4><div id="savings-circle"></div></div>';
-			}
-			dashboard_html += '<div id="est-savings-container">';
-			dashboard_html += '<button class="btn btn-secondary showsSavingsBtn">Estimate Savings <i class="typcn typcn-arrow-sorted-down"></i></button>';
-			dashboard_html += '<form id="est-savings-form" class="sidebar">';
-			dashboard_html += '<div class="form-group">';
-			dashboard_html += '<label for="addl_pmt">Additional Principal Payment:</label>';
-			dashboard_html += '<div id="esinput">';
-			dashboard_html += '<input type="text" name="addl_pmt" id="addl_pmt" data-role="none" placeholder="">';
-			dashboard_html += '<button type="button" class="btn btn-primary btn-sm calcSavingsBtn"><i class="fa fa-usd" aria-hidden="true"></i></button>';
-			dashboard_html += '</div>';
-			dashboard_html += '</div>';
-			dashboard_html += '<div id="savingsDisplay"></div>';
-			dashboard_html += '</form>';
-			dashboard_html += '</div>';
-			dashboard_html += '</div>';
-			//Payments
-			dashboard_html += '<div id="db-right">';
-			dashboard_html += '<div id="payments-container">';
-			dashboard_html += '<h1>My Payments</h1>';
-			dashboard_html += '<div id="payments-table">';
-			if(obj.data.payments != '' && obj.data.payments != null) {
-				$.each( obj.data.payments , function( index, value ){
-					var payment_date = '';
-					if(obj.data.payments[index].payment_date != null && obj.data.payments[index].payment_date != '') {
-						var payment_date = obj.data.payments[index].payment_date.replace(/-/g, '/');
-						var today = new Date(payment_date);
-						var dd = today.getDate();
-						var mm = today.getMonth()+1; //January is 0!
-						var yyyy = today.getFullYear();
-						if(dd<10) {
-							dd = '0'+dd
-						} 
-			
-						if(mm<10) {
-							mm = '0'+mm
-						} 
-						payment_date = mm + '/' + dd + '/' + yyyy;
-					}
-					var status_marker = (obj.data.payments[index].status == 1) ? '<i class="fa fa-check fa-lg payClr changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>' : '<i class="fa fa-check fa-lg payNot changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>';
-					dashboard_html += '<div class="payment-container" id="pay-container-' +  obj.data.payments[index].id + '">';
-					dashboard_html += '<small>' + payment_date + '</small>';
-					dashboard_html += '<div class="payment-amt">$' + obj.data.payments[index].payment_amt + '</div>';
-					dashboard_html += '<div class="payment-type">' + obj.data.payments[index].payment_type + '</div>';
-					dashboard_html += '<div class="payment-btns">';
-					var cbtn_disp = 'inline-block';
-					if(obj.data.payments[index].status == 1) {
-						cbtn_disp = 'none';
-					}
-					dashboard_html += '<span id="pay-status-' + obj.data.payments[index].id + '" class="pay-status">' + status_marker + '</span>';
-					dashboard_html += '<i class="typcn typcn-pencil editPaymentBtn" data-id="' + obj.data.payments[index].id + '"></i>';
-					dashboard_html += '<i class="typcn typcn-cancel cancelPaymentBtn" data-id="' + obj.data.payments[index].id + '" style="display: ' + cbtn_disp + '"></i>';
-					dashboard_html += '</div>';
-					dashboard_html += '</div>';
-				});
-			}
-			else {
-				dashboard_html += '<p style="text-align: center;">You have not entered any payments.</p> <span class="makePaymentBtn btn btn-primary btn-sm">Click here to get started</span>';
-			}
-		
-			dashboard_html += '</div>';
-			dashboard_html += '</div>';
-			dashboard_html += '</div>';
-			dashboard_html += '<div class="clr"></div>';
-			
-			//dashboard_html += '<div id="app-rate"><img src="lib/icon/rate_app.png"></div>';
-			//$('#payments-container').html(payments_html);
-			//$.mobile.loading('hide');
-			$('#dashboard-container').html(dashboard_html);
-			if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
-				$("#savings-circle").circliful({
-					animationStep: 5,
-					foregroundBorderWidth: 23,
-					backgroundBorderWidth: 25,
-					percent: saved_percent,
-					icon: 'f155',
-					iconSize: '40',
-					iconPosition: 'middle',
-					showPercent: 1,
-					target: 0,
-					noPercentageSign: true,
-					replacePercentageByText: "$" + int_saved,
-					percentageTextSize: '14'
-				});
-			}
 
+				if(mm<10) {
+					mm = '0'+mm
+				} 
+				orig_date = mm + '/' + dd + '/' + yyyy;
+				var payoff_date = '';
+				if(obj.data.acct.payoff_date != null && obj.data.acct.payoff_date != '') {
+					var payoff_date = obj.data.acct.payoff_date.replace(/-/g, '/');
+					var today = new Date(payoff_date);
+					var dd = today.getDate();
+					var mm = today.getMonth()+1; //January is 0!
+					var yyyy = today.getFullYear();
+					if(dd<10) {
+						dd = '0'+dd
+					} 
+
+					if(mm<10) {
+						mm = '0'+mm
+					} 
+					payoff_date = mm + '/' + dd + '/' + yyyy;
+				}
+				var adj_payoff_date = '';
+				if(obj.data.acct.adj_payoff_date != null && obj.data.acct.adj_payoff_date != '') {
+					var adj_payoff_date = obj.data.acct.adj_payoff_date.replace(/-/g, '/');
+					var today = new Date(adj_payoff_date);
+					var dd = today.getDate();
+					var mm = today.getMonth()+1; //January is 0!
+					var yyyy = today.getFullYear();
+					if(dd<10) {
+						dd = '0'+dd
+					} 
+
+					if(mm<10) {
+						mm = '0'+mm
+					} 
+					adj_payoff_date = mm + '/' + dd + '/' + yyyy;
+				}
+				/*console.log(obj.data.acct.int_rate);*/
+				$('#int-rate').val(obj.data.acct.int_rate);
+				$('#loan-amount-input').val(obj.data.acct.loan_amount);
+				$('#loan-years-input').val((obj.data.acct.loan_term/12));
+				dashboard_html += '<div id="ov-switch">';
+				dashboard_html += '<button class="btn btn-default btn-sm switchAccountBtn">Switch Account <i class="typcn typcn-arrow-sorted-down"></i></button>';
+				dashboard_html += '<div id="account-container">';
+				dashboard_html += '<ul>';
+				//Sub accounts
+				var account_count = 1; //We are counting the main account..
+				$.each( obj.data.sub_accounts, function( index, value ){
+					/*console.log(obj.data.sub_accounts[index].account_title);*/
+					dashboard_html += '<li class="sub-account-link" data-id="'  + obj.data.sub_accounts[index].id + '">' + obj.data.sub_accounts[index].account_title + ' (Acct# ' + obj.data.sub_accounts[index].acct_number + ')</li>';
+					account_count++;
+				});
+				setStorage('account_count', account_count);
+				if(getStorage('account_count') >= getStorage('max_accounts')) {
+					dashboard_html += '<li class="upgradeAcctBtn">+ Add New Account</li>';
+				}
+				else {
+					dashboard_html += '<li class="addAcctBtn">+ Add New Account</li>';
+				}
+				dashboard_html += '</ul>';
+				dashboard_html += '</div>';
+				dashboard_html += '</div>';
+				dashboard_html += '<div class="ov-acct"><span class="ov-title">Acct:</span><small>#' + obj.data.acct.acct_number + '</small><br>' + obj.data.acct.account_title + '</div>';
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Amt:</span> <b>$' + obj.data.acct.loan_amount + '</b></div>';
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Balance:</span> <b>$' + obj.data.acct.loan_balance + '</b></div>';
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Loan Orig. Date:</span> <b>' + orig_date + '</b></div>';
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Orig. Payoff Date:</span> <b>' + payoff_date + '</b></div>';
+				if(adj_payoff_date != '') {
+					dashboard_html += '<div class="ov-div"><span class="ov-caption">Est. Payoff Date:</span> <b>' + adj_payoff_date + '</b></div>';
+				}
+				dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Rate:</span> <b>' + obj.data.acct.int_rate + '%</b></div>';
+				if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
+					$('#int-rate-saved').val(obj.data.acct.int_saved);
+					$('#saved-percent-input').val(obj.data.acct.saved_percent);
+					dashboard_html += '<div class="ov-div"><span class="ov-caption">Interest Saved:</span> <b>$' + obj.data.acct.int_saved + '</b></div>';
+				}
+
+				dashboard_html += '<div id="acctEdit"><i class="fa fa-trash-o deleteAcctBtn" data-id="' + obj.data.acct.id + '"></i> <i class="fa fa-pencil-square-o editAcctBtn" data-id="' + obj.data.acct.id + '"></i></div>';
+
+				//$('#loan-overview').html(loan_html);
+				dashboard_html += '</div>';
+				dashboard_html += '<div id="make-payment-container">';
+				dashboard_html += '<button class="btn btn-primary makePaymentBtn">Record Payment</button> <a href="amortization.html" class="btn btn-default">View Amortization</a>';
+				dashboard_html += '</div>';
+				if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
+					var int_saved = $('input[name="int_saved"]').val();
+					var saved_percent = $('input[name="saved_percent"]').val();
+					dashboard_html += '<div class="sidebar" id="int-saved-cont"><h4>Money Saved</h4><div id="savings-circle"></div></div>';
+				}
+				dashboard_html += '<div id="est-savings-container">';
+				dashboard_html += '<button class="btn btn-secondary showsSavingsBtn">Estimate Savings <i class="typcn typcn-arrow-sorted-down"></i></button>';
+				dashboard_html += '<form id="est-savings-form" class="sidebar">';
+				dashboard_html += '<div class="form-group">';
+				dashboard_html += '<label for="addl_pmt">Additional Principal Payment:</label>';
+				dashboard_html += '<div id="esinput">';
+				dashboard_html += '<input type="text" name="addl_pmt" id="addl_pmt" data-role="none" placeholder="">';
+				dashboard_html += '<button type="button" class="btn btn-primary btn-sm calcSavingsBtn"><i class="fa fa-usd" aria-hidden="true"></i></button>';
+				dashboard_html += '</div>';
+				dashboard_html += '</div>';
+				dashboard_html += '<div id="savingsDisplay"></div>';
+				dashboard_html += '</form>';
+				dashboard_html += '</div>';
+				dashboard_html += '</div>';
+				//Payments
+				dashboard_html += '<div id="db-right">';
+				dashboard_html += '<div id="payments-container">';
+				dashboard_html += '<h1>My Payments</h1>';
+				dashboard_html += '<div id="payments-table">';
+				if(obj.data.payments != '' && obj.data.payments != null) {
+					$.each( obj.data.payments , function( index, value ){
+						var payment_date = '';
+						if(obj.data.payments[index].payment_date != null && obj.data.payments[index].payment_date != '') {
+							var payment_date = obj.data.payments[index].payment_date.replace(/-/g, '/');
+							var today = new Date(payment_date);
+							var dd = today.getDate();
+							var mm = today.getMonth()+1; //January is 0!
+							var yyyy = today.getFullYear();
+							if(dd<10) {
+								dd = '0'+dd
+							} 
+
+							if(mm<10) {
+								mm = '0'+mm
+							} 
+							payment_date = mm + '/' + dd + '/' + yyyy;
+						}
+						var status_marker = (obj.data.payments[index].status == 1) ? '<i class="fa fa-check fa-lg payClr changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>' : '<i class="fa fa-check fa-lg payNot changepayStatus" data-status="' + obj.data.payments[index].status + '" data-id="' + obj.data.payments[index].id + '"></i>';
+						dashboard_html += '<div class="payment-container" id="pay-container-' +  obj.data.payments[index].id + '">';
+						dashboard_html += '<small>' + payment_date + '</small>';
+						dashboard_html += '<div class="payment-amt">$' + obj.data.payments[index].payment_amt + '</div>';
+						dashboard_html += '<div class="payment-type">' + obj.data.payments[index].payment_type + '</div>';
+						dashboard_html += '<div class="payment-btns">';
+						var cbtn_disp = 'inline-block';
+						if(obj.data.payments[index].status == 1) {
+							cbtn_disp = 'none';
+						}
+						dashboard_html += '<span id="pay-status-' + obj.data.payments[index].id + '" class="pay-status">' + status_marker + '</span>';
+						dashboard_html += '<i class="typcn typcn-pencil editPaymentBtn" data-id="' + obj.data.payments[index].id + '"></i>';
+						dashboard_html += '<i class="typcn typcn-cancel cancelPaymentBtn" data-id="' + obj.data.payments[index].id + '" style="display: ' + cbtn_disp + '"></i>';
+						dashboard_html += '</div>';
+						dashboard_html += '</div>';
+					});
+				}
+				else {
+					dashboard_html += '<p style="text-align: center;">You have not entered any payments.</p> <span class="makePaymentBtn btn btn-primary">Click here to get started</span>';
+				}
+
+				dashboard_html += '</div>';
+				dashboard_html += '</div>';
+				dashboard_html += '</div>';
+				dashboard_html += '<div class="clr"></div>';
+
+				//dashboard_html += '<div id="app-rate"><img src="lib/icon/rate_app.png"></div>';
+				//$('#payments-container').html(payments_html);
+				//$.mobile.loading('hide');
+				$('#dashboard-container').html(dashboard_html);
+				if(obj.data.acct.int_saved != '' && obj.data.acct.int_saved != null) {
+					$("#savings-circle").circliful({
+						animationStep: 5,
+						foregroundBorderWidth: 23,
+						backgroundBorderWidth: 25,
+						percent: saved_percent,
+						icon: 'f155',
+						iconSize: '40',
+						iconPosition: 'middle',
+						showPercent: 1,
+						target: 0,
+						noPercentageSign: true,
+						replacePercentageByText: "$" + int_saved,
+						percentageTextSize: '14'
+					});
+				}
+			}
+			else {
+				dashboard_html += '<h2 style="text-align: center; margin-top: 30px;">You do not have any accounts setup</h2><span class="newAcctBtn btn btn-primary" style="text-transform: uppercase;">Click here to get started</span>';
+				$('#dashboard-container').html(dashboard_html);
+			}
 			$('.page-overlay').fadeOut('fast', function() {
 				$(this).remove();
 			});
