@@ -22,6 +22,7 @@
     Tie in PayPal
     Test - Listener needs to upgrade max_accounts
     Listener on inappbrowser to close
+    Change back to $4.99
     
 ### Settings 
     
@@ -30,7 +31,7 @@
 
 ### Register Account
 
-    Test…
+    Re-Test (worked in browser)
 
 www.myloanzapper.com
 
