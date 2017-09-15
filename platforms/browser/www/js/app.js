@@ -13,7 +13,7 @@ var mainView = app.addView('.view-main', {
     dynamicNavbar: true
 });
 
-deleteStorage('dllogin');
+//deleteStorage('dllogin');
 //setStorage('user_id', 1);
 //setStorage('max_accounts', 1);
 
@@ -200,7 +200,7 @@ $$(document).on('pageInit', function (e) {
 				}
 			},
 			error : function(request,error) {
-				$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+				$('.login-screen-title').after('<div class="alert alert-error">An unknown error occured</div>');
 				console.log("Request (error): "+JSON.stringify(request));
 				loading('hide');
 			}
@@ -283,7 +283,7 @@ $$(document).on('pageInit', function (e) {
 				});
 			},
 			error : function(request,error) {
-				$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+				$('.login-screen-title').after('<div class="alert alert-error list-block">' + JSON.stringify(request) + '</div>');
 				console.log("Request (error): "+JSON.stringify(request));
 				loading('hide');
 			}
