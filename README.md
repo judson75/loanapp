@@ -27,13 +27,10 @@
     
     Re-test
 
-### Coupon
-
-    Test
 
 ### Register Account
 
-    Finish
+    Test…
 
 www.myloanzapper.com
 

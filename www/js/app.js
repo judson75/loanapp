@@ -356,6 +356,72 @@ $(document).mouseup(function(e) {
 
 });
 
+$(document).on('click', '.signupBtn', function() {
+	$('.alert').remove();
+	var error_count = 0;
+	var email = $('input[name="register_email"]').val();
+	var password = $('input[name="register_password"]').val();
+	var first_name = $('input[name="first_name"]').val();
+	var last_name = $('input[name="last_name"]').val();
+	var cell_phone = $('input[name="cell_phone"]').val();
+	if(first_name === '') {
+		$('input[name="first_name"]').parent('div').addClass('hasError');
+		$('input[name="first_name"]').after('<div class="helper error">Please enter first name</div>');
+		error_count++;
+	}
+	if(last_name === '') {
+		$('input[name="last_name"]').parent('div').addClass('hasError');
+		$('input[name="last_name"]').after('<div class="helper error">Please enter last name</div>');
+		error_count++;
+	}
+	if(email === '') {
+		$('input[name="register_email"]').parent('div').addClass('hasError');
+		$('input[name="register_email"]').after('<div class="helper error">Please enter email address</div>');
+		error_count++;
+	}
+	if(password === '') {
+		$('input[name="register_password"]').parent('div').addClass('hasError');
+		$('input[name="register_password"]').after('<div class="helper error">Please enter password</div>');
+		error_count++;
+	}
+	if(error_count > 0) {
+		return false;
+	}
+	$$.ajax({
+		url : serviceURL,
+		type : 'POST',
+		data : {
+			'method': 'post',
+			'action': 'register_user',
+			'format': 'json',
+			'email' : email, 
+			'password': password, 
+			'first_name': first_name, 
+			'last_name': last_name, 
+			'cell_phone': cell_phone,
+		},
+		dataType: 'html',
+		beforeSend: function() {
+			loading('show');
+	  	},
+		success : function(data) {
+		console.log("DATA: " + data);
+			var obj = $.parseJSON(data);
+			if(obj.code === 1) { 
+				$('#register-form').prepend('<div class="alert alert-success">You are now registered</div>');
+			}
+			else {
+				$('#register-form').prepend('<div class="alert alert-error">' + obj.data + '</div>');
+			}
+			loading('hide');
+		},
+		error : function(request,error) {
+			console.log("Request (error): "+JSON.stringify(request));
+			loading('hide');
+		}
+	});
+});
+
 $(document).on('click', '.updateSettingsBtn', function() {
 	$('.alert').remove();
 	var id = getStorage('user_id');
