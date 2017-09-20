@@ -28,6 +28,9 @@
         },
         "cordova-plugin-themeablebrowser": {
             "PACKAGE_NAME": "com.loanzapper.app"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.loanzapper.app"
         }
     },
     "dependent_plugins": {

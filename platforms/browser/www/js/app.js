@@ -76,7 +76,7 @@ $$(document).on('deviceready', function() {
 	};
 	
 	AppRate.preferences.displayAppName = 'LoanZapper';
-	AppRate.preferences.usesUntilPrompt = 3;
+	AppRate.preferences.usesUntilPrompt = 10;
 	AppRate.promptForRating(false);
 })
 
@@ -502,73 +502,9 @@ $(document).on('click', '.refreshBtn', function() {
 });
 
 $(document).on('click', '.upgradeAcctBtn, .upgradeAcctBtn2', function() {
-	/*
-	var ref = window.open('http://myloanzapper.com/upgrade?user=' + getStorage('user_id') + '&title=You have reached the maximum accounts', '_blank', 'location=yes');
-	ref.addEventListener('loadstop', function() {
-		//this is for the page displayed...
-		ref.insertCSS({file: "/css/styles.css"});
-	});
-
-	ref.show();
-	*/
 	var str = getStorage('user_id') + '::You have reached the maximum accounts';
-	cordova.ThemeableBrowser.open('http://myloanzapper.com/upgrade?ui=' + window.btoa(unescape(encodeURIComponent(str))) + '', '_blank', {
-		statusbar: {
-			color: '#ffffffff'
-		},
-		toolbar: {
-			height: 44,
-			color: '#f0f0f0ff'
-		},
-		title: {
-			color: '#003264ff',
-			showPageTitle: true
-		},
-		backButton: {
-			image: 'back',
-			imagePressed: 'back_pressed',
-			align: 'left',
-			event: 'backPressed'
-		},
-		forwardButton: {
-			image: 'forward',
-			imagePressed: 'forward_pressed',
-			align: 'left',
-			event: 'forwardPressed'
-		},
-		closeButton: {
-			image: 'close',
-			imagePressed: 'close_pressed',
-			align: 'left',
-			event: 'closePressed'
-		},
-		customButtons: [
-			{
-				image: 'share',
-				imagePressed: 'share_pressed',
-				align: 'right',
-				event: 'sharePressed'
-			}
-		],
-		menu: {
-			image: 'menu',
-			imagePressed: 'menu_pressed',
-			title: 'Test',
-			cancel: 'Cancel',
-			align: 'right',
-			items: [
-				{
-					event: 'helloPressed',
-					label: 'Hello World!'
-				},
-				{
-					event: 'testPressed',
-					label: 'Test!'
-				}
-			]
-		},
-		backButtonCanClose: true
-	});
+	var ref = cordova.InAppBrowser.open('http://myloanzapper.com/upgrade?ui=' + btoa(unescape(encodeURIComponent(str))) + '', '_blank', 'location=yes');
+	
 });
 
 
@@ -758,10 +694,11 @@ $(document).on('click', '#account-container li.sub-account-link', function() {
 	buildDashboard();
 });
 
-$(document).on('click', 'input[name="payment_type"]', function() {
-	$('input[name="payment_type"]').parent('div').find('.helper-info').remove();
-	if($('input[name="payment_type"]:checked').val() == 'principal') {
-		$('input[name="payment_type"]').parent('div').append('<div class="helper-info"><i class="typcn typcn-info"></i> <h3>NOTICE</h3><br>Before making a principal only payment, you must make your regulary scheduled payment.</div>');
+$(document).on('change', '#savePaymentFrm input[name="payment_type"]', function() {
+	$('#savePaymentFrm input[name="payment_type"]').parent('div').find('.helper-info').remove();
+	//alert($('#savePaymentFrm input[name="payment_type"]:checked').val());
+	if($('#savePaymentFrm input[name="payment_type"]:checked').val() == 'principal') {
+		$('#savePaymentFrm input[name="payment_type"]').parent('div').append('<div class="helper-info"><i class="typcn typcn-info"></i> <h3>NOTICE</h3><br>Before making a principal only payment, you must make your regulary scheduled payment.</div>');
 	}
 	else {
 
