@@ -104,6 +104,20 @@ module.exports = [
         "id": "cordova-plugin-globalization.GlobalizationProxy",
         "pluginId": "cordova-plugin-globalization",
         "runs": true
+    },
+    {
+        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "id": "cordova-plugin-splashscreen.SplashScreen",
+        "pluginId": "cordova-plugin-splashscreen",
+        "clobbers": [
+            "navigator.splashscreen"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-splashscreen/src/browser/SplashScreenProxy.js",
+        "id": "cordova-plugin-splashscreen.SplashScreenProxy",
+        "pluginId": "cordova-plugin-splashscreen",
+        "runs": true
     }
 ];
 module.exports.metadata = 
@@ -117,7 +131,8 @@ module.exports.metadata =
     "cordova-plugin-inappbrowser": "1.7.1",
     "cordova-plugin-apprate": "1.3.0",
     "cordova-plugin-globalization": "1.0.7",
-    "cordova-plugin-themeablebrowser": "0.2.17"
+    "cordova-plugin-themeablebrowser": "0.2.17",
+    "cordova-plugin-splashscreen": "4.0.3"
 }
 // BOTTOM OF METADATA
 });

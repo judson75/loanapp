@@ -155,7 +155,7 @@ $$(document).on('pageInit', function (e) {
 				loading('hide');
 			},
 			error : function(request,error) {
-				$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+				//$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
 				console.log("Request (error): "+JSON.stringify(request));
 				loading('hide');
 			}
@@ -200,7 +200,7 @@ $$(document).on('pageInit', function (e) {
 				}
 			},
 			error : function(request,error) {
-				$('.login-screen-title').after('<div class="alert alert-error">An unknown error occured</div>');
+				//$('.login-screen-title').after('<div class="alert alert-error">An unknown error occured</div>');
 				console.log("Request (error): "+JSON.stringify(request));
 				loading('hide');
 			}
@@ -283,7 +283,7 @@ $$(document).on('pageInit', function (e) {
 				});
 			},
 			error : function(request,error) {
-				$('.login-screen-title').after('<div class="alert alert-error list-block">' + JSON.stringify(request) + '</div>');
+				//$('.login-screen-title').after('<div class="alert alert-error list-block">' + JSON.stringify(request) + '</div>');
 				console.log("Request (error): "+JSON.stringify(request));
 				loading('hide');
 			}
@@ -292,8 +292,52 @@ $$(document).on('pageInit', function (e) {
 	}
 })
 
+$$(document).on('click', '.sendResetBtn', function() {
+	$('.alert').remove();
+	var error_count = 0;
+	var email = $$('input[name="reset_user_email"]').val();
+	if(email == '') {
+		$('input[name="reset_user_email"]').addClass('hasError');
+		//' + ppmnt + ' = ' +  amount + '
+		$('input[name="reset_user_email"]').after('<div class="helper error">You must enter an email address</div>');
+		error_count++;
+	}
+	if(error_count > 0) {
+		return false;
+	}
+	$$.ajax({
+		url : serviceURL,
+		type : 'POST',
+		data : {
+			'method': 'post',
+			'action': 'send_reset',
+			'format': 'json',
+			'email' : email,
+		},
+		dataType: 'html',
+		beforeSend: function() {
+
+	  	},
+		success : function(data) {
+			console.log("DATA: " + data);
+			var obj = $.parseJSON(data);
+			if(obj.code === 1) {
+				$('#reset-password-form').prepend('<div class="alert alert-success">Please check your email for instructions.</div>');	
+			}
+			else {
+				//$('#loginFrm').prepend('<div class="helper error">' + obj.msg + '</div>');
+				//$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+			}
+			
+		},
+		error : function(request,error) {
+			console.log("Request (error): "+JSON.stringify(request));
+		}
+	});
+})
+
 $$(document).on('click', '.loginBtn', function() {
-	$('alert').remove();
+	$('.alert').remove();
 	var email = $$('input[name="email"]').val();
 	var password = $$('input[name="password"]').val();
 	$$.ajax({
@@ -311,10 +355,10 @@ $$(document).on('click', '.loginBtn', function() {
 			loading('show');
 	  	},
 		success : function(data) {
-			/*console.log('Data: ' + data);*/ 
+			console.log('Data: ' + data);
 			var obj = $.parseJSON(data);
 			/*console.log('Resp: ' + obj.code);*/
-			if(obj.code === 1) {
+			if(obj.code === 1 && obj.data.id != '' && obj.data.id != null) {
 				setStorage('email', obj.data.email);
 				setStorage('user_id', obj.data.id);
 				setStorage('dllogin', 1);
@@ -323,13 +367,12 @@ $$(document).on('click', '.loginBtn', function() {
 				location.reload();
 			}
 			else {
-				
-				
+				$('.login-screen-title').after('<div class="alert alert-error list-block">' + obj.data + '</div>');
 			}
 			loading('hide');
 		},
 		error : function(request,error) {
-			$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured</div>');
+			$('.login-screen-title').after('<div class="alert alert-error list-block">An unknown error occured. Please try back again later.</div>');
 			console.log("Request (error): "+JSON.stringify(request));
 			loading('hide');
 		}
