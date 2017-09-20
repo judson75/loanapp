@@ -58,12 +58,12 @@ $$(document).on('deviceready', function() {
 	});
 
 	push.on('notification', function(data) {
-		alert('notification event');
+		//alert('notification event');
 		navigator.notification.alert(
 			data.message,         // message
 			null,                 // callback
 			data.title,           // title
-			'Ok'                  // buttonName
+			'OK'                  // buttonName
 		);
 	});
 	
