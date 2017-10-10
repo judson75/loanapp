@@ -170,6 +170,55 @@ hr {
 	margin-left: 1%;
 }
 
+.page-from-left-to-center {
+    -webkit-animation: pageFromLeftToCenter @pageDuration forwards;
+    animation: pageFromLeftToCenter @pageDuration forwards;
+}
+
+@-webkit-keyframes pageFromLeftToCenter {
+    from {
+        .box-shadow(none);
+        transform: translate3d(-100%,0,0);
+    }
+    to {
+        transform: translate3d(0,0,0);
+    }
+}
+@keyframes pageFromLeftToCenter {
+    from {
+        .box-shadow(none);
+        transform: translate3d(-100%,0,0);
+    } 
+    to {
+        transform: translate3d(0,0,0);
+    }
+}
+
+.page-from-right-to-center {
+    -webkit-animation: pageFromRightToCenter @pageDuration forwards;
+    animation: pageFromRightToCenter @pageDuration forwards;
+}
+
+@-webkit-keyframes pageFromRightToCenter {
+    from {
+        .box-shadow(none);
+        transform: translate3d(100%,0,0);
+    }
+    to {
+        .box-shadow(0 0 12px rgba(0,0,0,0.5));
+        transform: translate3d(0,0,0);
+    }
+}
+@keyframes pageFromRightToCenter {
+    from {
+        .box-shadow(none);
+        transform: translate3d(100%,0,0);
+    } 
+    to {
+        .box-shadow(0 0 12px rgba(0,0,0,0.5));
+        transform: translate3d(0,0,0);
+    }
+}
 
 #confirm {
 	background: #fff;

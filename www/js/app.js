@@ -577,7 +577,7 @@ $(document).on('click', '#acctSetupFrm input[name="account_title"]', function() 
 
 $(document).on('click', '#acctSetupFrm input[name="account_number"]', function() {
 	$('.block-tooltip').remove();
-	$('#acctSetupFrm input[name="account_number"]').after('<div class="block-tooltip">Enter your account number. This will help you further identify this account.</div>');
+	$('#acctSetupFrm input[name="account_number"]').after('<div class="block-tooltip">Enter your account number. This will help you further identify this account and be used when printing payment coupons. If you leave it blank you can fill it in by hand.</div>');
 });
 
 $(document).on('click', '#acctSetupFrm input[name="loan_amount"]', function() {
@@ -1257,13 +1257,13 @@ function saveAcct() {
 		$('#acctSetupFrm input[name="account_title"]').after('<div class="helper">Account title required</div>');
 		error_count++;
 	}
-
+/*
 	if(account_number == '') {
 		$('#acctSetupFrm input[name="account_number"]').parent('div').addClass('hasError');
 		$('#acctSetupFrm input[name="account_number"]').after('<div class="helper">Account number required</div>');
 		error_count++;
 	}
-
+*/
 	if(loan_term == '') {
 		$('#acctSetupFrm input[name="loan_term"]').parent('div').addClass('hasError');
 		$('#acctSetupFrm input[name="loan_term"]').after('<div class="helper">Loan term required</div>');
